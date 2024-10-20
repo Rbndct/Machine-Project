@@ -44,12 +44,13 @@ This project simulates a vending machine that allows users to:
     ```
 3. Compile the program:
     ```
-    gcc -Wall -std=c99 vending_machine.c -o vending_machine
+    gcc -Wall -std=c99 src/main.c -o program
     ```
 4. Run the executable:
     ```
-    ./vending_machine
+    ./program
     ```
+
 
 ## Acknowledgements
 This project was developed with the help of the following resources:
