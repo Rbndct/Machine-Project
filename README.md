@@ -55,5 +55,6 @@ This project simulates a vending machine that allows users to:
 This project was developed with the help of the following resources:
 - [W3Schools C Programming](https://www.w3schools.com/c/c_intro.php)
 - [Programiz C Programming](https://www.programiz.com/c-programming)
+- [Devdocs.io] (https://devdocs.io/c-error-handling/)
 
 
