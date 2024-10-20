@@ -11,8 +11,13 @@ typedef struct
 
 // Function Prototypes
 void displayItems(VendingItem[], int);
-void userMoneyInput(float *);
-void selectItems(VendingItem[], int);
-void printSelectedItems(char[][20], int[], float[], int, float);
+
 int isValidDenomination(float);
+void userMoneyInput(float *);
+
 void initializeArrays(int[], float[], int);
+
+void selectItems(VendingItem[], int);
+void processSelection(VendingItem[], int , char[][20], int[], float[], float *, int *);
+void updateSelectedItems(char[][20], int[], float[], float *, VendingItem *, int *);
+void printSelectedItems(char[][20], int[], float[], int, float);
