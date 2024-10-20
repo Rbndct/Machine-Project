@@ -1,10 +1,11 @@
 #include "vending_machine.h"
 
+#define OUT_OF_STOCK_MSG "Out of Stock"
+#define INVALID_DENOM_MSG "Invalid denomination! Please try again."
+#define SEPARATOR "--------------------------------------------------------------"
+
 /**
  * @brief Displays the available items in the vending machine.
- *
- * This function prints a table showing the item number, name, price, and stock for each vending item. It also indicates if an item is out of stock.
- *
  * @param items An array of VendingItem structs, each representing an item in the vending machine.
  * @param menuSize The number of items available in the vending machine menu.
  */
@@ -12,7 +13,7 @@ void displayItems(VendingItem items[], int menuSize)
 {
     // Headers for the vending machine item display
     printf("\n\n%-12s | %-15s | %-10s | %-10s\n", "Item Number", "Item Name", "Price (PHP)", "Stock Left");
-    printf("--------------------------------------------------------------\n");
+    printf(SEPARATOR "\n");
 
     // Loop through the items and display their details
     for (int i = 0; i < menuSize; i++)
@@ -23,96 +24,102 @@ void displayItems(VendingItem items[], int menuSize)
         // Check if the item is out of stock and display a message if true
         if ((items[i]).stock == 0)
         {
-            printf(" %-12s", "Out of Stock");
+            printf(" %-12s", OUT_OF_STOCK_MSG);
         }
-
         printf("\n");
     }
-    printf("--------------------------------------------------------------\n");
+    printf(SEPARATOR "\n");
 }
 
 /**
  * @brief Accepts money input from the user for the vending machine.
- *
- * This function prompts the user to insert valid cash denominations until they are done.
- * It updates the total amount of money inserted and checks for invalid denominations.
- *
  * @param userMoney Tracks the total money inserted by the user.
  */
 void userMoneyInput(float *userMoney)
 {
-    int done = 0;        // Control variable to indicate when the user is done inserting money
     float moneyInserted; // Holds the value of each money denomination inserted
 
-    printf("Insert money into the vending machine.\n");
-    printf("Allowed Denominations:\n");
-    printf("Bills: 20, 50, 100, 200, 500 (PHP)\n");
-    printf("Coins: 1, 5, 10 (PHP), 0.25, 0.10, 0.05 (Cents)\n");
+    printf("Insert money into the vending machine.\n" "Allowed Denominations:\n" 
+    "Bills: 20, 50, 100, 200, 500 (PHP)\n" "Coins: 1, 5, 10 (PHP), 0.25, 0.10, 0.05 (Cents)\n");
 
     // Loop to accept money input until the user is done
-    while (!done)
+    while (1)
     {
-        printf("\nEnter the cash denomination: ");
-        printf("Enter 0 when done: ");
+        printf("\nEnter the cash denomination (0 when done): ");
         scanf("%f", &moneyInserted);
 
         // If the user enters 0, exit the loop
-        if (moneyInserted == 0)
-        {
-            done = 1;
-        }
+        if (moneyInserted == 0) break;
+
         // Check if the inserted amount is a valid denomination
-        else if (moneyInserted == 20 || moneyInserted == 50 ||
-                 moneyInserted == 100 || moneyInserted == 200 ||
-                 moneyInserted == 500 || moneyInserted == 1 || moneyInserted == 5 ||
-                 moneyInserted == 10 || moneyInserted == 0.25 ||
-                 moneyInserted == 0.10 || moneyInserted == 0.05)
+        if (isValidDenomination(moneyInserted)) 
         {
             *userMoney += moneyInserted; // Update total money inserted
-            printf("You inserted: %.2f PHP\n", moneyInserted);
-            printf("Total money inserted so far: %.2f PHP\n", *userMoney);
+            printf("You inserted: %.2f PHP\nTotal so far: %.2f PHP\n", moneyInserted, *userMoney);
         }
         // Handle invalid denominations
         else
         {
-            printf("Invalid denomination! Please try again.\n");
+            printf(INVALID_DENOM_MSG "\n");
         }
     }
-
     // Display total money inserted once the user is done
-    printf("Total money inserted: %.2f PHP\n", *userMoney);
-    printf("--------------------------------------------------------------\n");
+        printf("Total money inserted: %.2f PHP\n" SEPARATOR "\n", *userMoney);
+}
+
+/**
+ * @brief Checks if the inserted money denomination is valid for the vending machine.
+ * - Bills: 20, 50, 100, 200, 500 (PHP)
+ * - Coins: 1, 5, 10 (PHP), 0.25, 0.10, 0.05 (Cents)
+ * @param moneyInserted The monetary amount to be validated.
+ * @return int Returns 1 (true) if the denomination is valid, and 0 (false) otherwise.
+ */
+int isValidDenomination(float moneyInserted) {
+    float validDenominations[] = {20, 50, 100, 200, 500, 1, 5, 10, 0.25, 0.10, 0.05};
+    int numValidDenominations = 11;
+    // Check if the inserted amount matches any valid denomination
+    for (int i = 0; i < numValidDenominations; i++) {
+        if (moneyInserted == validDenominations[i]) {
+            return 1; // Valid denomination
+        }
+    }
+    return 0; // Invalid denomination
+}
+
+/**
+ * @brief Initializes the quantities and subtotals arrays to zero.
+ * @param quantities An array to store quantities of items.
+ * @param subTotals An array to store subtotal values.
+ * @param menuSize The number of items in the menu.
+ */
+void initializeArrays(int quantities[], float subTotals[], int menuSize)
+{
+    for (int i = 0; i < menuSize; i++)
+    {
+        quantities[i] = 0;
+        subTotals[i] = 0;
+    }
 }
 
 /**
  * @brief Allows the user to select items from a vending machine menu.
- *
- * The user can select items by entering the corresponding item number.
- * The function checks if the item is available in stock and processes the selection by updating the quantity,
- * subtotal, and total cost of the selected item(s).
- * The function stops when the user enters '0'.
- *
  * @param items An array of VendingItem structs representing the items in the vending machine.
  * @param menuSize The number of items available in the vending machine menu.
  */
 void selectItems(VendingItem items[], int menuSize)
 {
-    int done = 0, selection;
+    int done = 0;
     float totalItemCost = 0;
     char selectedItems[menuSize][20]; // Array to store selected item names
     int quantities[menuSize];         // Array to store quantities
     float subTotals[menuSize];        // Array to store subtotals
     int count = 0;                    // Counter for unique selected items
 
-    // Initialize quantities and subtotals arrays to zero
-    for (int i = 0; i < menuSize; i++)
-    {
-        quantities[i] = 0;
-        subTotals[i] = 0;
-    }
+    initializeArrays(quantities, subTotals, menuSize);
 
     while (!done)
     {
+        int selection;
         printf("\n\nEnter item number to order (1-%d).\nEnter 0 when done: ", menuSize);
         scanf("%d", &selection);
 
@@ -132,6 +139,8 @@ void selectItems(VendingItem items[], int menuSize)
                 int found = 0;
                 for (int i = 0; i < count; i++)
                 {
+                    // Compares the name of selected item with item stored in the selectedItems array at index[i]
+                    // Indicates that the same item has already been selected -- avoids item repetition in final order receipt
                     if (strcmp(selectedItems[i], (*selectedItem).name) == 0)
                     {
                         // Item already selected, update quantity and subtotal
@@ -146,8 +155,12 @@ void selectItems(VendingItem items[], int menuSize)
                 // If the item was not previously selected, add it to the list of selected items
                 if (!found)
                 {
+                    //Copies current selected item onto selectedItems array at index[count]
+                    // Adding newly selected item to selectedItems list
                     strcpy(selectedItems[count], (*selectedItem).name);
                     quantities[count] = 1; // First time selected, quantity is 1
+
+                    // Calculates subtotal per item
                     subTotals[count] = (*selectedItem).price;
                     totalItemCost += (*selectedItem).price;
                     count++;
@@ -174,12 +187,9 @@ void selectItems(VendingItem items[], int menuSize)
     printSelectedItems(selectedItems, quantities, subTotals, count, totalItemCost); // Call to print function
 }
 
+
 /**
  * @brief Prints the selected items, their quantities, and their total costs.
- *
- * This function displays the selected items in a table format, showing the item name,
- * the quantity selected, and the total cost for each item. It also displays the final total cost.
- *
  * @param selectedItems Array containing the names of the selected items.
  * @param quantities An array containing the quantities of each selected item.
  * @param subTotals An array containing the subtotal cost for each selected item.
@@ -191,7 +201,7 @@ void printSelectedItems(char selectedItems[][20], int quantities[], float subTot
     // Print table header
     printf("\n\nYou have selected:\n");
     printf("%-15s | %-10s | %-10s\n", "Item Name", "Quantity", "Total Cost");
-    printf("--------------------------------------------------------------\n");
+    printf(SEPARATOR "\n");
 
     // Print each selected item with its quantity and total cost
     for (int i = 0; i < count; i++)
@@ -200,6 +210,6 @@ void printSelectedItems(char selectedItems[][20], int quantities[], float subTot
     }
 
     // Print the final total cost
-    printf("--------------------------------------------------------------\n");
+    printf(SEPARATOR "\n");
     printf("Final Total: %.2f\n", finalTotal);
 }

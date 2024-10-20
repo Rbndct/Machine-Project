@@ -14,3 +14,5 @@ void displayItems(VendingItem[], int);
 void userMoneyInput(float *);
 void selectItems(VendingItem[], int);
 void printSelectedItems(char[][20], int[], float[], int, float);
+int isValidDenomination(float);
+void initializeArrays(int[], float[], int);
