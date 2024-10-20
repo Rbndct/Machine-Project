@@ -9,6 +9,14 @@ typedef struct
     int stock;      // Available stock of the item
 } VendingItem;
 
+// Structure for storing cash on hand 
+typedef struct
+{
+    float cashDenomination; // Cash denomination the machine accepts
+    int amountLeft;      // Available # of that denomination
+} CashRegister;
+
+
 // Function Prototypes
 void displayItems(VendingItem[], int);
 
@@ -17,7 +25,9 @@ void userMoneyInput(float *);
 
 void initializeArrays(int[], float[], int);
 
-void selectItems(VendingItem[], int);
+void selectItems(VendingItem[], int, float*);
 void processSelection(VendingItem[], int , char[][20], int[], float[], float *, int *);
 void updateSelectedItems(char[][20], int[], float[], float *, VendingItem *, int *);
-void printSelectedItems(char[][20], int[], float[], int, float);
+void printSelectedItems(char[][20], int[], float[], int, float*);
+
+void getChange(CashRegister[], float*, int, float*);
