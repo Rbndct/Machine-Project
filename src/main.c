@@ -1,7 +1,7 @@
 /*
     Description:      This program simulates a vending machine that allows the
     user to view items, insert money, and check for stock availability.
-    Programmed by:    MAAGMA, RAPHAEL S17
+    Programmed by:    
     Last modified:    19/10/2024
     Version:          1.0
     Link:             https://github.com/Rbndct/Machine-Project
@@ -14,7 +14,6 @@
     further certify that I have not copied in part or whole or otherwise
     plagiarized the work of other students and/or persons.
 
-    MAAGMA, RAPHAEL C., DLSU ID 12413828
 */
 
 #include <stdio.h>
