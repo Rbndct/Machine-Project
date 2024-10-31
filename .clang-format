@@ -1,0 +1,15 @@
+BasedOnStyle: Google
+ColumnLimit: 100
+IndentWidth: 4
+UseTab: Never
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: true
+BreakBeforeBraces: Allman
+AllowShortBlocksOnASingleLine: false
+AllowShortFunctionsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+CommentPragmas: true
+SortIncludes: true
+MaxEmptyLinesToKeep: 1
+PointerAlignment: Left
+Cpp11BracedListStyle: true
