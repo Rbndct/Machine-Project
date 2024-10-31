@@ -3,10 +3,10 @@
  */
 typedef struct
 {
-    int itemNumber;      // Item number for selection
-    char name[20];       // Name of the item
-    float price;         // Price of the item in PHP
-    int stock;           // Available stock of the item
+    int itemNumber;  // Item number for selection
+    char name[20];   // Name of the item
+    float price;     // Price of the item in PHP
+    int stock;       // Available stock of the item
 } VendingItem;
 
 /**
@@ -14,20 +14,21 @@ typedef struct
  */
 typedef struct
 {
-    float cashDenomination; // Cash denomination the machine accepts
-    int amountLeft;         // Available number of that denomination
+    float cashDenomination;  // Cash denomination the machine accepts
+    int amountLeft;          // Available number of that denomination
 } CashRegister;
 
 /**
  * @brief Structure for tracking user's selected items in the vending machine.
  */
-typedef struct 
+typedef struct
 {
-    char selectedItems[50][20]; // Array to store names of selected items (up to 50 items)
-    int quantities[50];         // Array to store quantities for each selected item
-    float subTotals[50];        // Array to store subtotal costs for each selected item
-    int count;                  // Number of items selected
-    float totalItemCost;        // Total cost of all selected items
+    char selectedItems[50][20];  // Array to store names of selected items (up
+                                 // to 50 items)
+    int quantities[50];          // Array to store quantities for each selected item
+    float subTotals[50];         // Array to store subtotal costs for each selected item
+    int count;                   // Number of items selected
+    float totalItemCost;         // Total cost of all selected items
 } UserSelection;
 
 // Function Prototypes
@@ -47,4 +48,5 @@ void updateSelectedItems(UserSelection *selection, VendingItem *selectedItem);
 void getSilog(UserSelection *selection);
 
 // Cash Transaction Functions
-void getChange(CashRegister cash[], float *userMoney, int registerSize, float *totalItemCost, int *confirmation);
+void getChange(CashRegister cash[], float *userMoney, int registerSize, float *totalItemCost,
+               int *confirmation);

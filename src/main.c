@@ -18,43 +18,29 @@
 
 #include <stdio.h>
 #include <string.h>
+
 #include "vending_machine.c"
 int main()
 {
-    // Define items in the vending machine with item numbers, names, prices, and stock counts
-    VendingItem items[] = {
-        {1, "Hotdog", 9.50, 5},
-        {2, "Longganisa", 20.75, 3},
-        {3, "Bacon", 12.00, 2},
-        {4, "Sausage", 35.00, 1},
-        {5, "Tapa", 22.50, 0},
-        {6, "Tocino", 18.00, 6},
-        {7, "Rice", 15.00, 8},
-        {8, "Egg", 8.00, 10}
-    };
+    // Define items in the vending machine with item numbers, names, prices, and
+    // stock counts
+    VendingItem items[] = {{1, "Hotdog", 9.50, 5}, {2, "Longganisa", 20.75, 3},
+                           {3, "Bacon", 12.00, 2}, {4, "Sausage", 35.00, 1},
+                           {5, "Tapa", 22.50, 0},  {6, "Tocino", 18.00, 6},
+                           {7, "Rice", 15.00, 8},  {8, "Egg", 8.00, 10}};
 
     // Define available cash denominations in the register
-    CashRegister cash[] = {
-        {500, 10},
-        {100, 10},
-        {50, 10},
-        {20, 10},
-        {10, 10},
-        {5, 10},
-        {1, 10},
-        {0.25, 10},
-        {0.10, 10},
-        {0.05, 10}
-    };
+    CashRegister cash[] = {{500, 10}, {100, 10}, {50, 10},   {20, 10},   {10, 10},
+                           {5, 10},   {1, 10},   {0.25, 10}, {0.10, 10}, {0.05, 10}};
 
-    int registerSize = 11; //number of cash denominations
-    int menuSize = 8; // number of items in the menu
-    float userMoney = 0; // Total money inserted by the user
+    int registerSize = 11;  // number of cash denominations
+    int menuSize = 8;       // number of items in the menu
+    float userMoney = 0;    // Total money inserted by the user
 
     // Initialize UserSelection to track the user's selected items
     UserSelection selection = {{{0}}, {0}, {0.0}, 0, 0.0};
 
-    int confirmation;
+    int confirmation = 0;
 
     // Display available items to the user
     displayItems(items, menuSize);
@@ -67,9 +53,10 @@ int main()
 
     // Process payment and dispense change based on total cost and user money
     getChange(cash, &userMoney, registerSize, &selection.totalItemCost, &confirmation);
-  
+
     // Call getSilog only if the order is confirmed
-    if (confirmation == 1) {
+    if (confirmation == 1)
+    {
         getSilog(&selection);
     }
 
