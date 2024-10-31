@@ -41,17 +41,27 @@ int main()
   int registerSize = 11;
   int menuSize = 8;    // Number of items in the menu
   float userMoney = 0; // Total money inserted by the user
-  float totalItemCost = 0.0;
-  
+
+  // Initialize UserSelection to track user’s selected items
+  UserSelection selection = {{{0}}, {0}, {0.0}, 0, 0.0};
+
+  int confirmation;
 
   // Display available items
   displayItems(items, menuSize);
 
-  // Accept money from user
-  userMoneyInput(&userMoney);
-  // Select Items
-  selectItems(items, menuSize, &totalItemCost);
+  // Input Money
+  userMoneyInput(&userMoney, cash, registerSize);
 
-  getChange(cash, &userMoney, registerSize, &totalItemCost); // Call the function to dispense change
+  // Select Items
+  selectItems(items, menuSize, &selection);
+
+  // Dispense change based on total cost and user money
+  getChange(cash, &userMoney, registerSize, &selection.totalItemCost, &confirmation);
+  
+  // Call getSilog only if the order is confirmed
+    if (confirmation == 1) {
+        getSilog(&selection);
+    }
   return 0;
 }

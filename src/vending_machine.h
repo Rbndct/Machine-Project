@@ -9,25 +9,36 @@ typedef struct
     int stock;      // Available stock of the item
 } VendingItem;
 
-// Structure for storing cash on hand 
+// Structure for storing cash on hand
 typedef struct
 {
     float cashDenomination; // Cash denomination the machine accepts
-    int amountLeft;      // Available # of that denomination
+    int amountLeft;         // Available # of that denomination
 } CashRegister;
+
+typedef struct {
+    char selectedItems[50][20]; // Assuming max 50 items can be selected
+    int quantities[50];
+    float subTotals[50];
+    int count;
+    float totalItemCost;
+} UserSelection;
 
 
 // Function Prototypes
-void displayItems(VendingItem[], int);
+// Display Functions
+void displayItems(VendingItem items[], int menuSize);
+void printSelectedItems(UserSelection *selection);
 
-int isValidDenomination(float);
-void userMoneyInput(float *);
+// User Input Functions
+int isValidDenomination(float denomination);
+void userMoneyInput(float *userMoney, CashRegister cash[], int registerSize);
+void selectItems(VendingItem items[], int menuSize, UserSelection *selection);
+void processSelection(VendingItem items[], int index, UserSelection *selection);
 
-void initializeArrays(int[], float[], int);
+// Selection Update Functions
+void updateSelectedItems(UserSelection *selection, VendingItem *selectedItem);
+void getSilog(UserSelection *selection);
 
-void selectItems(VendingItem[], int, float*);
-void processSelection(VendingItem[], int , char[][20], int[], float[], float *, int *);
-void updateSelectedItems(char[][20], int[], float[], float *, VendingItem *, int *);
-void printSelectedItems(char[][20], int[], float[], int, float*);
-
-void getChange(CashRegister[], float*, int, float*);
+// Cash Transaction Functions
+void getChange(CashRegister cash[], float *userMoney, int registerSize, float *totalItemCost, int *confirmation);
