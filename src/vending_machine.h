@@ -1,31 +1,37 @@
-
-
-// Structure for storing vending item details
+/**
+ * @brief Structure for storing vending item details.
+ */
 typedef struct
 {
-    int itemNumber; // Item number for selection
-    char name[20];  // Name of the item
-    float price;    // Price of the item in PHP
-    int stock;      // Available stock of the item
+    int itemNumber;      // Item number for selection
+    char name[20];       // Name of the item
+    float price;         // Price of the item in PHP
+    int stock;           // Available stock of the item
 } VendingItem;
 
-// Structure for storing cash on hand
+/**
+ * @brief Structure for storing cash on hand in the vending machine.
+ */
 typedef struct
 {
     float cashDenomination; // Cash denomination the machine accepts
-    int amountLeft;         // Available # of that denomination
+    int amountLeft;         // Available number of that denomination
 } CashRegister;
 
-typedef struct {
-    char selectedItems[50][20]; // Assuming max 50 items can be selected
-    int quantities[50];
-    float subTotals[50];
-    int count;
-    float totalItemCost;
+/**
+ * @brief Structure for tracking user's selected items in the vending machine.
+ */
+typedef struct 
+{
+    char selectedItems[50][20]; // Array to store names of selected items (up to 50 items)
+    int quantities[50];         // Array to store quantities for each selected item
+    float subTotals[50];        // Array to store subtotal costs for each selected item
+    int count;                  // Number of items selected
+    float totalItemCost;        // Total cost of all selected items
 } UserSelection;
 
-
 // Function Prototypes
+
 // Display Functions
 void displayItems(VendingItem items[], int menuSize);
 void printSelectedItems(UserSelection *selection);
