@@ -1,29 +1,33 @@
-/*
-    Description:      This program simulates a vending machine that allows the
-    user to view items, insert money, and check for stock availability.
-    Programmed by:
-    Last modified:    19/10/2024
-    Version:          1.0
-    Link:             https://github.com/Rbndct/Machine-Project
-    [Acknowledgements: <list of sites or borrowed libraries and sources>]
-
-    This is to certify that this project is my own work, based on my personal
-    efforts in studying and applying the concepts learned.  I have constructed
-    the functions and their respective algorithms and corresponding code by
-    myself.  The program was run, tested, and debugged by my own efforts.  I
-    further certify that I have not copied in part or whole or otherwise
-    plagiarized the work of other students and/or persons.
-
-*/
+/**
+ * @file main.c
+ * @brief This program simulates a vending machine where the user can view items, insert money, and
+ * check stock availability.
+ * @version 2.0
+ * @date Last modified: November 5, 2024
+ * @link https://github.com/Rbndct/Machine-Project
+ *
+ * @section Acknowledgments
+ * Resources:
+ * - W3Schools: https://www.w3schools.com/c/c_intro.php
+ * - Programiz: https://www.programiz.com/c-programming
+ * - DevDocs: https://devdocs.io/c-error-handling/
+ *
+ * Acknowledgment and Certification: This project is my own work, based on personal efforts and
+ * application of studied concepts.
+ */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "main_menu.c"
+#include "maintenance.c"
 #include "vending_machine.c"
+
+// Main function for the vending machine program
 int main()
 {
-    // Define items in the vending machine with item numbers, names, prices, and
-    // stock counts
+    // Define items in the vending machine with item numbers, names, prices, and stock counts
     VendingItem items[] = {{1, "Hotdog", 9.50, 5}, {2, "Longganisa", 20.75, 3},
                            {3, "Bacon", 12.00, 2}, {4, "Sausage", 35.00, 1},
                            {5, "Tapa", 22.50, 0},  {6, "Tocino", 18.00, 6},
@@ -33,32 +37,48 @@ int main()
     CashRegister cash[] = {{500, 10}, {100, 10}, {50, 10},   {20, 10},   {10, 10},
                            {5, 10},   {1, 10},   {0.25, 10}, {0.10, 10}, {0.05, 10}};
 
-    int registerSize = 11;  // number of cash denominations
-    int menuSize = 8;       // number of items in the menu
-    float userMoney = 0;    // Total money inserted by the user
+    float userMoney = 0.0f;  // Total money inserted by the user
 
     // Initialize UserSelection to track the user's selected items
     UserSelection selection = {{{0}}, {0}, {0.0}, 0, 0.0};
-
-    int confirmation = 0;
-
-    // Display available items to the user
-    displayItems(items, menuSize);
-
-    // Input money from the user
-    userMoneyInput(&userMoney, cash, registerSize);
-
-    // Allow the user to select items from the menu
-    selectItems(items, menuSize, &selection);
-
-    // Process payment and dispense change based on total cost and user money
-    getChange(cash, &userMoney, registerSize, &selection.totalItemCost, &confirmation);
-
-    // Call getSilog only if the order is confirmed
-    if (confirmation == 1)
+    int registerSize = 10, menuSize = 8, userMenuSelection = 0, confirmation = 0;
+    int maintenancePassword = 123456;
+    // Loop to show the main menu until the user chooses to exit
+    while (1)
     {
-        getSilog(&selection);
-    }
+        int displayMenu = handleMenuSelection(userMenuSelection);
 
+        switch (displayMenu)
+        {
+            case 1:  // Purchase items
+                processPurchase(items, menuSize, &userMoney, cash, registerSize, &selection,
+                                &confirmation);
+                break;
+            case 2:  // Maintenance options
+                if (maintenanceValidation(&maintenancePassword))
+                {
+                    handleMaintenanceOptions(items, menuSize);
+                }
+                else
+                {
+                    printf("Wrong password\n");
+                }
+                break;
+            case 3:  // Exit
+                if (maintenanceValidation(&maintenancePassword))
+                {
+                    printf("Machine going offline...\n");
+                    return 0;
+                }
+                else
+                {
+                    printf("Wrong password\n");
+                }
+                break;
+            default:
+                printf("Invalid selection. Please try again.\n");
+                break;
+        }
+    }
     return 0;
 }
