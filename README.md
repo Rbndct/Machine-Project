@@ -58,4 +58,4 @@ This project was developed with the help of the following resources:
 - [W3Schools C Programming](https://www.w3schools.com/c/c_intro.php)
 - [Programiz C Programming](https://www.programiz.com/c-programming)
 - [Devdocs.io](https://devdocs.io/c-error-handling/)
-- Lessons and videos from my Grade 12 Data Structures class at iAcademy, provided by Sir Wilson Tiu.
+- Lessons and videos from my Grade 12 Data Structures class at iACADEMY, provided by Sir Wilson Tiu.
