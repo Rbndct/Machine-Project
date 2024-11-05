@@ -7,12 +7,13 @@ This project simulates a vending machine that allows users to:
 - Select items from the machine based on availability
 - Automatically update stock and calculate the total cost after each transaction
 
-## Features (As of 31/10/2024)
+## Features (As of 05/11/2024)
 - Item selection and display
 - Valid cash denomination acceptance
 - Real-time stock updates after each purchase
 - Input validation for both item selection and cash insertion
 - **Silog Vending Machine Features** fully implemented
+- **Maintenance Features** fully implemented, allowing staff to manage inventory and pricing.
 
 ## Planned Features
 
@@ -22,11 +23,12 @@ This project simulates a vending machine that allows users to:
 - [x] Get/display product
 
 ### Maintenance Features
-- [ ] Account/password for staff/seller
-- [ ] Inventory features:
-  - [ ] View stock/inventory
-  - [ ] Modify the price of the menu
-  - [ ] Restock inventory
+- [x] Account/password for staff/seller
+- [x] Inventory features:
+  - [x] View stock/inventory
+  - [x] Modify the price of the menu
+  - [x] Restock inventory
+- [ ] Saving and loading the updated price and inventory count to a file in CSV format.
 
 ### Cash Register Features
 - [ ] View cash register (number of each denomination, total amount)
@@ -56,3 +58,4 @@ This project was developed with the help of the following resources:
 - [W3Schools C Programming](https://www.w3schools.com/c/c_intro.php)
 - [Programiz C Programming](https://www.programiz.com/c-programming)
 - [Devdocs.io](https://devdocs.io/c-error-handling/)
+- Lessons and videos from my Grade 12 Data Structures class at iAcademy, provided by Sir Wilson Tiu.
