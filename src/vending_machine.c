@@ -1,12 +1,7 @@
 #include "vending_machine.h"
 
-#define OUT_OF_STOCK_MSG "Out of Stock"
-#define INVALID_DENOM_MSG "Invalid denomination! Please try again."
-#define SEPARATOR "--------------------------------------------------------------"
-
-// Define valid denominations as constants
-const float VALID_DENOMINATIONS[] = {20, 50, 100, 200, 500, 1, 5, 10, 0.25, 0.10, 0.05};
-const int NUM_VALID_DENOMINATIONS = 11;
+#include "constants.h"
+#include "data_structures.h"
 
 /**
  * @brief Displays the list of vending items with their details.
@@ -80,8 +75,7 @@ void updateCashRegister(CashRegister cashRegister[], int registerSize, float den
         if (cashRegister[i].cashDenomination == denomination)
         {
             cashRegister[i].amountLeft++;  // Increment the count of this denomination
-            return;                        // Exit the function once the denomination is found and
-                                           // updated
+            return;
         }
     }
 }
@@ -147,7 +141,7 @@ void userMoneyInput(float *userMoney, CashRegister cashRegister[], int registerS
  */
 void selectItems(VendingItem items[], int menuSize, UserSelection *selection)
 {
-    int done = 0;  // Flag to track when the user is finished selecting items
+    int done = 0;  // Variable to track when the user is finished selecting items
 
     while (!done)  // Loop until the user finalizes their selection
     {
@@ -399,6 +393,6 @@ void getSilog(UserSelection *selection)
     }
 
     printf(SEPARATOR "\n");
-    // Instruction for the user to retrieve the silog
+    // Print message to retrieve the silog
     printf("Get silog from tray bin.\n");
 }
