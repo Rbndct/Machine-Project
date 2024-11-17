@@ -45,7 +45,7 @@ void displayItems(VendingItem items[], int menuSize)
  */
 int isValidDenomination(float moneyInserted)
 {
-    int isValid = 0; // Flag to track if a valid denomination is found
+    int isValid = 0;  // Flag to track if a valid denomination is found
 
     // Loop through all valid denominations to find a match
     for (int i = 0; i < NUM_VALID_DENOMINATIONS; i++)
@@ -53,14 +53,13 @@ int isValidDenomination(float moneyInserted)
         // Check if the inserted money matches the current valid denomination
         if (moneyInserted == VALID_DENOMINATIONS[i])
         {
-            isValid = 1; // Mark as valid
+            isValid = 1;  // Mark as valid
         }
     }
 
     // Return the result after completing the loop
     return isValid;
 }
-
 
 /**
  * @brief Updates the cash register by incrementing the count of a specific
@@ -130,7 +129,6 @@ void userMoneyInput(float *userMoney, CashRegister cashRegister[], int registerS
         }
     }
 }
-
 
 /**
  * @brief Allows the user to select items from the vending machine menu.
@@ -203,8 +201,7 @@ void processSelection(VendingItem items[], int index, UserSelection *selection)
     {
         // Update the user's selection with the selected item
         updateSelectedItems(selection, selectedItem);
-
-        selectedItem->stock--;  // Decrease the stock count for the selected item
+        selectedItem->stock--;
 
         // Display the selection and current total cost
         printf("You have selected: %s, which costs %.2f PHP\n", selectedItem->name,
@@ -256,7 +253,6 @@ void updateSelectedItems(UserSelection *selection, VendingItem *selectedItem)
     selection->totalItemCost += selectedItem->price;
 }
 
-
 /**
  * @brief Prints the user's selected items along with their quantities and total
  * costs.
@@ -287,16 +283,15 @@ void printSelectedItems(UserSelection *selection)
 
     printf(SEPARATOR "\n");  // Print separator for better visual distinction
 }
+
 /**
- * @brief Calculates and dispenses change based on the user's order confirmation
- * and total item cost.
- * @param cash Array of CashRegister structures representing the available
- * denominations and their counts.
- * @param userMoney Pointer to the total amount of money inserted by the user.
- * @param registerSize Size of the cash register array.
- * @param totalItemCost Pointer to the total cost of items selected by the user.
- * @param confirmation Pointer to an integer that will hold the user's
- * confirmation input.
+ * @brief Handles the change calculation and dispensing process
+ * @param cash Array of CashRegister structures
+ * @param userMoney Pointer to a float representing the total amount of money inserted by the user
+ * @param registerSize Size of the cash register array
+ * @param totalItemCost Pointer to a float representing the total cost of the items selected by the
+ * user
+ * @param confirmation Pointer to an integer indicating the user's choice
  */
 void getChange(CashRegister cash[], float *userMoney, int registerSize, float *totalItemCost,
                int *confirmation)
@@ -305,62 +300,78 @@ void getChange(CashRegister cash[], float *userMoney, int registerSize, float *t
     printf("Order Confirmation (1 - Confirm / 0 - Cancel Order): ");
     while (scanf("%d", confirmation) != 1)  // Ensure only integer input is accepted
     {
-        while (getchar() != '\n')  // Clear invalid input from buffer
-            ;
+        while (getchar() != '\n');  // Clear invalid input from buffer
         printf("Invalid input! Please enter 1 to confirm or 0 to cancel: ");
     }
 
-    float userChange;        // Variable to hold the calculated change
-    if (*confirmation == 1)  // If the order is confirmed
+    float userChange = 0.0f;  // Variable to hold the calculated change
+    if (*confirmation == 1)   // Order confirmed
     {
-        userChange = *userMoney - *totalItemCost;  // Calculate the change to be returned
-        printf("%-15s %-5.2f %-5s", "Final Total:", *totalItemCost, "PHP");
-        printf("\n%-15s %-5.2f %-5s", "Money Input:", *userMoney, "PHP");
-        printf("\n%-15s %-5.2f %-5s", "Change Total:", userChange, "PHP");
+        userChange = *userMoney - *totalItemCost;
+        printf("\n%-15s: %.2f PHP", "Final Total", *totalItemCost);
+        printf("\n%-15s: %.2f PHP", "Money Input", *userMoney);
+        printf("\n%-15s: %.2f PHP\n", "Change Total", userChange);
     }
-    else  // If the order is canceled
+    else  // Order canceled
     {
-        userChange = *userMoney;  // User receives all money back
-        printf("\n%-15s %-5.2f %-5s", "Money Input:", *userMoney, "PHP");
+        userChange = *userMoney;  // Return all money
+        printf("\n%-15s: %.2f PHP\n", "Money Refunded", userChange);
     }
 
     printf("\n" SEPARATOR);
 
-    // Amount to dispense as change
-    float amountToDispense = userChange;
-
-    // Iterate through cash register denominations to dispense change
-    for (int i = 0; i < registerSize && amountToDispense >= 0.05; i++)
+    // Process change dispensing only if there is change to give
+    if (userChange > 0)
     {
-        // While loop to dispense the denomination as many times as possible
+        dispenseChange(cash, registerSize, userChange);
+    }
+    else
+    {
+        printf("\nNo change to dispense.\n");
+    }
+}
+
+/**
+ * @brief Dispenses the change using the cash register denominations
+ * @param cash Array of CashRegister structures
+ * @param registerSize Size of the cash register array
+ * @param amountToDispense The total amount of change to dispense
+ */
+void dispenseChange(CashRegister cash[], int registerSize, float amountToDispense)
+{
+    printf("\nDispensing Change:\n");
+
+    for (int i = 0; i < registerSize && amountToDispense >= 0.05f; i++)
+    {
         int dispensedCount = 0;
+
+        // Dispense current denomination while possible
         while (amountToDispense >= cash[i].cashDenomination && cash[i].amountLeft > 0)
         {
-            amountToDispense -= cash[i].cashDenomination;  // Deduct denomination from remaining amount
-            cash[i].amountLeft--;  // Decrement the count of this denomination in the cash register
+            amountToDispense -= cash[i].cashDenomination;
+            cash[i].amountLeft--;
             dispensedCount++;
         }
 
-        // Print the dispensed denomination if any
+        // Display dispensed denominations if any
         if (dispensedCount > 0)
         {
-            printf("\n%-15s %-5.2f %-5s", "Dispensed", cash[i].cashDenomination, "PHP");
+            printf("%-15s: %.2f PHP x %d\n", "Dispensed", cash[i].cashDenomination, dispensedCount);
         }
     }
 
     printf("\n" SEPARATOR);
 
-    // Check if exact change was dispensed or if any remains
-    if (amountToDispense > 0.05)
+    // Check if exact change was successfully dispensed
+    if (amountToDispense > 0.05f)
     {
-        printf("\nUnable to dispense exact change. Remaining amount: %.2f\n", amountToDispense);
+        printf("\nUnable to dispense exact change. Remaining amount: %.2f PHP\n", amountToDispense);
     }
     else
     {
         printf("\nChange successfully dispensed.\n");
     }
 }
-
 
 /**
  * @brief Displays the order summary for selected items and instructs the user
@@ -395,4 +406,52 @@ void getSilog(UserSelection *selection)
     printf(SEPARATOR "\n");
     // Print message to retrieve the silog
     printf("Get silog from tray bin.\n");
+}
+/**
+ * @brief Resets the user's order and related data when the order is canceled
+ * @param userSelection Pointer to a UserSelection structure
+ * @param insertedMoney Pointer to the total amount of money inserted by the user
+ * @param availableItems Array of VendingItem structures
+ * @param menuSize Size of the vending machine item array
+ */
+void resetOrderAfterCancel(UserSelection *userSelection, float *insertedMoney,
+                           VendingItem availableItems[], int menuSize)
+{
+    // Only cancel and return stock for items in the user's selection
+    for (int i = 0; i < userSelection->count; i++)
+    {
+        // Find the corresponding item in the menu and return stock only for canceled items
+        for (int j = 0; j < menuSize; j++)
+        {
+            if (strcmp(availableItems[j].name, userSelection->selectedItems[i]) == 0)
+            {
+                // Return stock for canceled items (only if it's canceled, not transacted)
+                availableItems[j].stock += userSelection->quantities[i];
+            }
+        }
+    }
+
+    // Reset the user's selection details
+    userSelection->count = 0;
+    userSelection->totalItemCost = 0.0f;
+    *insertedMoney = 0.0f;
+
+    printf("\nOrder has been canceled and reset. Ready for a new transaction.\n");
+}
+
+/**
+ * @brief Resets the user's order details after confirming the transaction.
+
+ * @param userSelection Pointer to a UserSelection structure
+ * @param insertedMoney Pointer to a float representing the total amount of money inserted by the
+ user.
+ */
+void resetOrderAfterConfirm(UserSelection *userSelection, float *insertedMoney)
+{
+    // Reset the user's selection details after confirming the order
+    userSelection->count = 0;
+    userSelection->totalItemCost = 0.0f;
+    *insertedMoney = 0.0f;
+
+    printf("\nOrder has been completed and reset. Ready for a new transaction.\n");
 }
