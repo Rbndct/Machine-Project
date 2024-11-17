@@ -57,7 +57,6 @@ void processPurchase(VendingItem items[], int menuSize, float *userMoney, CashRe
         getSilog(selection);
     }
 }
-
 /**
  * @brief Display maintenance options and handle the user's selection.
  * @param items Array of VendingItem structures representing the inventory.
@@ -66,28 +65,34 @@ void processPurchase(VendingItem items[], int menuSize, float *userMoney, CashRe
 void handleMaintenanceOptions(VendingItem items[], int menuSize)
 {
     int maintenanceSelection = 0;  // Initialize variable for user selection
+    int validInput = 0;  // Flag to check if input is valid
 
-    // Display maintenance menu options
-    printf(
-        "\nMaintenance Features\n"
-        "---------------------\n"
-        "1 - View Inventory\n"
-        "2 - Set Item Price\n"
-        "3 - Restock Item\n"
-        "Enter your choice: ");
-
-    // Prompt for and capture the user's selection
-    if (scanf("%d", &maintenanceSelection) != 1)
+    while (!validInput)
     {
-        printf("Invalid input. Please enter a number between 1 and 3.\n");
-        return;  // Exit the function if input is invalid
-    }
+        // Display maintenance menu options
+        printf(
+            "\nMaintenance Features\n"
+            "---------------------\n"
+            "1 - View Inventory\n"
+            "2 - Set Item Price\n"
+            "3 - Restock Item\n"
+            "Enter your choice: ");
 
-    // Validate selection within the range of available options
-    if (maintenanceSelection < 1 || maintenanceSelection > 3)
-    {
-        printf("Invalid choice. Please enter a number between 1 and 3.\n");
-        return;  // Exit the function if selection is out of range
+        // Prompt for and capture the user's selection
+        if (scanf("%d", &maintenanceSelection) != 1)
+        {
+            printf("Invalid input. Please enter a number between 1 and 3.\n");
+            // Clear the invalid input from the buffer
+            while(getchar() != '\n');  // consume invalid input
+        }
+        else if (maintenanceSelection < 1 || maintenanceSelection > 3)
+        {
+            printf("Invalid choice. Please enter a number between 1 and 3.\n");
+        }
+        else
+        {
+            validInput = 1;  // If valid input, exit the loop and proceed
+        }
     }
 
     // Handle the selected maintenance option
@@ -108,3 +113,4 @@ void handleMaintenanceOptions(VendingItem items[], int menuSize)
             break;
     }
 }
+

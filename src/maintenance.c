@@ -71,7 +71,6 @@ void viewInventory(VendingItem items[], int menuSize)
     // Print footer for the item details table
     printf(SEPARATOR "\n");
 }
-
 /**
  * @brief Modify the price of a specific item in the vending machine.
  * @param items     Array of VendingItem structures representing the menu items.
@@ -111,20 +110,24 @@ void modifyPrice(VendingItem items[], int menuSize)
                 // Set the selected index item to user inputted price
                 items[i].price = newPrice;
                 printf("Price updated successfully!\n");
+                return;  // Exit after successful price modification
             }
             else
             {
                 printf("\nError: Please enter a positive number for the price.\n");
+                // Repeat item selection for invalid price entry
+                i--;  // Decrease index to retry current item
             }
-            break;
         }
     }
+
     // Error handling if there is no such item number
     if (itemFound == 0)
     {
         printf("Invalid Item Number! No item found with the entered number.\n");
     }
 }
+
 
 /**
  * @brief Allows staff to restock items in the vending machine inventory.
