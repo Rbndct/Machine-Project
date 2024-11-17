@@ -11,7 +11,7 @@
 int maintenanceValidation(int *maintenancePassword)
 {
     int passwordInput;
-    int isValid = 0; // Default to invalid (0)
+    int isValid = 0;  // Default to invalid (0)
 
     // Prompt the user for the maintenance password
     printf("\n\nInput maintenance password: ");
@@ -25,7 +25,7 @@ int maintenanceValidation(int *maintenancePassword)
         if (passwordInput == *maintenancePassword)
         {
             printf("Access Granted\n");
-            isValid = 1; // Password is valid
+            isValid = 1;  // Password is valid
         }
         else
         {
@@ -33,9 +33,8 @@ int maintenanceValidation(int *maintenancePassword)
         }
     }
 
-    return isValid; // Return the validation result at the end
+    return isValid;  // Return the validation result at the end
 }
-
 
 /**
  * @brief Displays the list of vending items with their details.
@@ -136,7 +135,7 @@ void restockInventory(VendingItem items[], int menuSize)
 {
     int modifyItemNumber;
     int reStock = 0;
-    int isValid = 0; // Variable to track if a valid item number was entered
+    int isValid = 0;  // Variable to track if a valid item number was entered
 
     // Display the inventory with stock levels
     printf("\n\n %-12s | %-15s | %-10s\n", "Item Number", "Item Name", "Stock Left");
@@ -168,7 +167,7 @@ void restockInventory(VendingItem items[], int menuSize)
         {
             if (items[i].itemNumber == modifyItemNumber)
             {
-                isValid = 1; // Mark item as valid
+                isValid = 1;  // Mark item as valid
                 printf("Input stock to add: ");
                 if (scanf("%d", &reStock) != 1 || reStock <= 0)
                 {
