@@ -26,37 +26,55 @@ int handleMenuSelection(int userMenuSelection)
 
 /**
  * @brief Handles the purchase flow in the vending machine.
- * @param items An array of VendingItem representing the available items.
- * @param menuSize The size of the items array.
- * @param userMoney A pointer to a float representing the user's money available for purchase.
- * @param cash An array of CashRegister representing the cash available.
- * @param registerSize The size of the cash register array.
- * @param selection A pointer to a UserSelection struct where user's selections will be stored.
- * @param confirmation A pointer to an integer to indicate whether the transaction is confirmed (1
- * for yes, 0 for no).
+ * @param availableItems Array of VendingItem structures representing the items available in the
+ * vending machine.
+ * @param itemCount Size of the availableItems array.
+ * @param userMoney Pointer to a float representing the user's money available for purchase.
+ * @param cashRegister Array of CashRegister structures representing the available denominations in
+ * the machine.
+ * @param cashRegisterSize Size of the cashRegister array.
+ * @param currentSelection Pointer to a UserSelection structure where user's selections will be
+ * stored.
+ * @param orderConfirmation Pointer to an integer to indicate whether the transaction is confirmed
+ * (1 for yes, 0 for no).
  */
-void processPurchase(VendingItem items[], int menuSize, float *userMoney, CashRegister cash[],
-                     int registerSize, UserSelection *selection, int *confirmation)
+void processPurchase(VendingItem availableItems[], int itemCount, float *insertedMoney,
+                     CashRegister cashRegister[], int cashRegisterSize,
+                     UserSelection *userSelection, int *orderConfirmation)
 {
     // Display the items available for purchase
-    displayItems(items, menuSize);
+    displayItems(availableItems, itemCount);
 
     // Prompt the user to input their money
-    userMoneyInput(userMoney, cash, registerSize);
+    userMoneyInput(insertedMoney, cashRegister, cashRegisterSize);
 
     // Allow the user to select items they wish to purchase
-    selectItems(items, menuSize, selection);
+    selectItems(availableItems, itemCount, userSelection);
 
     // Calculate the change based on user's money and total item cost
-    getChange(cash, userMoney, registerSize, &selection->totalItemCost, confirmation);
+    getChange(cashRegister, insertedMoney, cashRegisterSize, &userSelection->totalItemCost,
+              orderConfirmation);
 
     // If the transaction is confirmed by the user
-    if (*confirmation)
+    if (*orderConfirmation)
     {
-        // Process the selected silog items for purchase
-        getSilog(selection);
+        // Process the purchase (deduct stock, finalize purchase)
+        processTransaction(availableItems, itemCount, userSelection);
+
+        // Reset the order details after completing the transaction
+        resetOrderAfterConfirm(userSelection, insertedMoney);
+
+        printf("\nTransaction completed.\n");
+    }
+    else
+    {
+        // If the user cancels the order, reset the order (return stock, refund money)
+        resetOrderAfterCancel(userSelection, insertedMoney, availableItems, itemCount);
+
+        printf("\nOrder has been canceled.\n");
     }
 }
+
 /**
  * @brief Display maintenance options and handle the user's selection.
  * @param items Array of VendingItem structures representing the inventory.
@@ -65,7 +83,7 @@ void processPurchase(VendingItem items[], int menuSize, float *userMoney, CashRe
 void handleMaintenanceOptions(VendingItem items[], int menuSize)
 {
     int maintenanceSelection = 0;  // Initialize variable for user selection
-    int validInput = 0;  // Flag to check if input is valid
+    int validInput = 0;            // Flag to check if input is valid
 
     while (!validInput)
     {
@@ -83,7 +101,7 @@ void handleMaintenanceOptions(VendingItem items[], int menuSize)
         {
             printf("Invalid input. Please enter a number between 1 and 3.\n");
             // Clear the invalid input from the buffer
-            while(getchar() != '\n');  // consume invalid input
+            while (getchar() != '\n');  // consume invalid input
         }
         else if (maintenanceSelection < 1 || maintenanceSelection > 3)
         {
@@ -113,4 +131,3 @@ void handleMaintenanceOptions(VendingItem items[], int menuSize)
             break;
     }
 }
-
