@@ -127,8 +127,6 @@ void modifyPrice(VendingItem items[], int menuSize)
         printf("Invalid Item Number! No item found with the entered number.\n");
     }
 }
-
-
 /**
  * @brief Allows staff to restock items in the vending machine inventory.
  * @param items Array of VendingItem structures representing the inventory.
@@ -181,7 +179,6 @@ void restockInventory(VendingItem items[], int menuSize)
                     items[i].stock += reStock;
                     printf("Stock updated successfully.\n");
                 }
-                break; // Exit loop after processing the item
             }
         }
 
