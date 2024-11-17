@@ -45,19 +45,22 @@ void displayItems(VendingItem items[], int menuSize)
  */
 int isValidDenomination(float moneyInserted)
 {
+    int isValid = 0; // Flag to track if a valid denomination is found
+
     // Loop through all valid denominations to find a match
     for (int i = 0; i < NUM_VALID_DENOMINATIONS; i++)
     {
         // Check if the inserted money matches the current valid denomination
         if (moneyInserted == VALID_DENOMINATIONS[i])
         {
-            return 1;  // Valid denomination found
+            isValid = 1; // Mark as valid
         }
     }
 
-    // If no match is found, return 0 for an invalid denomination
-    return 0;
+    // Return the result after completing the loop
+    return isValid;
 }
+
 
 /**
  * @brief Updates the cash register by incrementing the count of a specific
@@ -75,11 +78,9 @@ void updateCashRegister(CashRegister cashRegister[], int registerSize, float den
         if (cashRegister[i].cashDenomination == denomination)
         {
             cashRegister[i].amountLeft++;  // Increment the count of this denomination
-            return;
         }
     }
 }
-
 /**
  * @brief Handles user input for inserting money into the vending machine.
  * @param userMoney Pointer to the total amount of money the user has inserted.
@@ -88,7 +89,7 @@ void updateCashRegister(CashRegister cashRegister[], int registerSize, float den
  */
 void userMoneyInput(float *userMoney, CashRegister cashRegister[], int registerSize)
 {
-    float moneyInserted;  // Variable to store the user's inserted amount
+    float moneyInserted = -1;  // Variable to store the user's inserted amount
 
     // Display available denominations to the user
     printf(
@@ -96,7 +97,8 @@ void userMoneyInput(float *userMoney, CashRegister cashRegister[], int registerS
         "Allowed Denominations:\n"
         "Bills: 20, 50, 100, 200, 500 (PHP)\n"
         "Coins: 1, 5, 10 (PHP), 0.25, 0.10, 0.05 (Cents)\n");
-    while (1)  // Infinite loop for user input
+
+    while (moneyInserted != 0)  // Loop until the user inputs 0
     {
         // Prompt user for cash denomination input
         printf("\nEnter the cash denomination (0 when done): ");
@@ -107,16 +109,16 @@ void userMoneyInput(float *userMoney, CashRegister cashRegister[], int registerS
             // Clear invalid input from buffer
             while (getchar() != '\n');
             printf("Invalid input! Please enter a numeric value.\n");
-            continue;  // Continue to the next iteration of the loop
+            moneyInserted = -1;  // Reset input to continue the loop
         }
-
-        // Exit loop if user inputs 0
-        if (moneyInserted == 0) break;
-
-        // Check if the inserted denomination is valid
-        if (isValidDenomination(moneyInserted))
+        else if (moneyInserted == 0)
         {
-            *userMoney += moneyInserted;  // Add the valid denomination to user's total
+            // User indicates they are done inserting money
+            printf("Total money inserted: %.2f PHP\n" SEPARATOR "\n", *userMoney);
+        }
+        else if (isValidDenomination(moneyInserted))  // Check if the denomination is valid
+        {
+            *userMoney += moneyInserted;  // Add the valid denomination to the user's total
             printf("You inserted: %.2f PHP\nTotal so far: %.2f PHP\n", moneyInserted, *userMoney);
 
             // Update the cash register with the inserted denomination
@@ -127,10 +129,8 @@ void userMoneyInput(float *userMoney, CashRegister cashRegister[], int registerS
             printf(INVALID_DENOM_MSG "\n");
         }
     }
-
-    // Display the total money inserted after exiting the loop
-    printf("Total money inserted: %.2f PHP\n" SEPARATOR "\n", *userMoney);
 }
+
 
 /**
  * @brief Allows the user to select items from the vending machine menu.
@@ -217,7 +217,6 @@ void processSelection(VendingItem items[], int index, UserSelection *selection)
         printf("Sorry, %s is currently out of stock!\n", selectedItem->name);
     }
 }
-
 /**
  * @brief Updates the user's selection with the selected vending item.
  * @param selection Pointer to a UserSelection structure that tracks the user's
@@ -234,7 +233,6 @@ void updateSelectedItems(UserSelection *selection, VendingItem *selectedItem)
         if (strcmp(selection->selectedItems[i], selectedItem->name) == 0)
         {
             existingIndex = i;  // Update existingIndex if item is found
-            break;
         }
     }
 
@@ -257,6 +255,7 @@ void updateSelectedItems(UserSelection *selection, VendingItem *selectedItem)
     // Update the total cost of the selected items
     selection->totalItemCost += selectedItem->price;
 }
+
 
 /**
  * @brief Prints the user's selected items along with their quantities and total
@@ -288,7 +287,6 @@ void printSelectedItems(UserSelection *selection)
 
     printf(SEPARATOR "\n");  // Print separator for better visual distinction
 }
-
 /**
  * @brief Calculates and dispenses change based on the user's order confirmation
  * and total item cost.
@@ -335,21 +333,18 @@ void getChange(CashRegister cash[], float *userMoney, int registerSize, float *t
     for (int i = 0; i < registerSize && amountToDispense >= 0.05; i++)
     {
         // While loop to dispense the denomination as many times as possible
+        int dispensedCount = 0;
         while (amountToDispense >= cash[i].cashDenomination && cash[i].amountLeft > 0)
         {
-            amountToDispense -= cash[i].cashDenomination;  // Deduct denomination from remaining
-                                                           // amount
-            cash[i].amountLeft--;  // Decrement the count of this denomination
-                                   // in the cash register
+            amountToDispense -= cash[i].cashDenomination;  // Deduct denomination from remaining amount
+            cash[i].amountLeft--;  // Decrement the count of this denomination in the cash register
+            dispensedCount++;
+        }
 
+        // Print the dispensed denomination if any
+        if (dispensedCount > 0)
+        {
             printf("\n%-15s %-5.2f %-5s", "Dispensed", cash[i].cashDenomination, "PHP");
-
-            // Check if the remaining amount to dispense is too small for more
-            // of this denomination
-            if (amountToDispense < 0.05)
-            {
-                break;  // Exit while loop if the remaining amount is too low
-            }
         }
     }
 
@@ -357,10 +352,15 @@ void getChange(CashRegister cash[], float *userMoney, int registerSize, float *t
 
     // Check if exact change was dispensed or if any remains
     if (amountToDispense > 0.05)
+    {
         printf("\nUnable to dispense exact change. Remaining amount: %.2f\n", amountToDispense);
+    }
     else
+    {
         printf("\nChange successfully dispensed.\n");
+    }
 }
+
 
 /**
  * @brief Displays the order summary for selected items and instructs the user

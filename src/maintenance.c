@@ -11,27 +11,31 @@
 int maintenanceValidation(int *maintenancePassword)
 {
     int passwordInput;
+    int isValid = 0; // Default to invalid (0)
 
     // Prompt the user for the maintenance password
     printf("\n\nInput maintenance password: ");
     if (scanf("%d", &passwordInput) != 1)
     {
         printf("Invalid input. Please enter a numerical password.\n");
-        return 0;  // Return 0 if input is invalid
-    }
-
-    // Check if the entered password matches the stored password
-    if (passwordInput == *maintenancePassword)
-    {
-        printf("Access Granted\n");
-        return 1;  // Return 1 if the password is correct
     }
     else
     {
-        printf("Incorrect password, please try again.\n");
-        return 0;  // Return 0 if the password is incorrect
+        // Check if the entered password matches the stored password
+        if (passwordInput == *maintenancePassword)
+        {
+            printf("Access Granted\n");
+            isValid = 1; // Password is valid
+        }
+        else
+        {
+            printf("Incorrect password, please try again.\n");
+        }
     }
+
+    return isValid; // Return the validation result at the end
 }
+
 
 /**
  * @brief Displays the list of vending items with their details.
@@ -130,6 +134,8 @@ void modifyPrice(VendingItem items[], int menuSize)
 void restockInventory(VendingItem items[], int menuSize)
 {
     int modifyItemNumber;
+    int reStock = 0;
+    int isValid = 0; // Variable to track if a valid item number was entered
 
     // Display the inventory with stock levels
     printf("\n\n %-12s | %-15s | %-10s\n", "Item Number", "Item Name", "Stock Left");
@@ -153,30 +159,33 @@ void restockInventory(VendingItem items[], int menuSize)
     if (scanf("%d", &modifyItemNumber) != 1)
     {
         printf("Invalid input. Please enter a valid item number.\n");
-        return;
     }
-
-    // Search for the item and update its stock if found
-    for (int i = 0; i < menuSize; i++)
+    else
     {
-        // To validate if user input has a corresponding item number
-        if (items[i].itemNumber == modifyItemNumber)
+        // Search for the item and update its stock if found
+        for (int i = 0; i < menuSize; i++)
         {
-            // User input on how much to restock
-            int reStock = 0;
-            printf("Input stock to add: ");
-            if (scanf("%d", &reStock) != 1 || reStock <= 0)
+            if (items[i].itemNumber == modifyItemNumber)
             {
-                printf("\nYou must input a positive number for stock addition.\n");
-                return;
+                isValid = 1; // Mark item as valid
+                printf("Input stock to add: ");
+                if (scanf("%d", &reStock) != 1 || reStock <= 0)
+                {
+                    printf("\nYou must input a positive number for stock addition.\n");
+                }
+                else
+                {
+                    items[i].stock += reStock;
+                    printf("Stock updated successfully.\n");
+                }
+                break; // Exit loop after processing the item
             }
-            // Add the user reStorck input to current stock of that item
-            items[i].stock += reStock;
-            printf("Stock updated successfully.\n");
-            return;
+        }
+
+        if (!isValid)
+        {
+            // Inform user if item number is invalid
+            printf("Invalid Item Number! Please try again.\n");
         }
     }
-
-    // Inform user if item number is invalid
-    printf("Invalid Item Number! Please try again.\n");
 }
