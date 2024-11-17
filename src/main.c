@@ -23,6 +23,7 @@
 #include "main_menu.c"
 #include "maintenance.c"
 #include "vending_machine.c"
+#include "data_management.c"
 
 // Main function for the vending machine program
 int main()
@@ -43,35 +44,29 @@ int main()
     UserSelection selection = {{{0}}, {0}, {0.0}, 0, 0.0};
     int registerSize = 10, menuSize = 8, userMenuSelection = 0, confirmation = 0;
     int maintenancePassword = 123456;
+    int isRunning = 1; // Condition to control the main loop
+
     // Loop to show the main menu until the user chooses to exit
-    while (1)
-    {
+    while (isRunning) {
         int displayMenu = handleMenuSelection(userMenuSelection);
 
-        switch (displayMenu)
-        {
+        switch (displayMenu) {
             case 1:  // Purchase items
-                processPurchase(items, menuSize, &userMoney, cash, registerSize, &selection,
-                                &confirmation);
+                processPurchase(items, menuSize, &userMoney, cash, registerSize, &selection, &confirmation);
                 break;
             case 2:  // Maintenance options
-                if (maintenanceValidation(&maintenancePassword))
-                {
+                if (maintenanceValidation(&maintenancePassword)) {
                     handleMaintenanceOptions(items, menuSize);
-                }
-                else
-                {
+                } else {
                     printf("Wrong password\n");
                 }
                 break;
             case 3:  // Exit
-                if (maintenanceValidation(&maintenancePassword))
-                {
+                if (maintenanceValidation(&maintenancePassword)) {
                     printf("Machine going offline...\n");
-                    return 0;
-                }
-                else
-                {
+                    saveItemsToCSV(items, menuSize);
+                    isRunning = 0; // Set the flag to stop the loop
+                } else {
                     printf("Wrong password\n");
                 }
                 break;
