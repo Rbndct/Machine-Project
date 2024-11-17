@@ -6,21 +6,20 @@
 // Function Prototypes
 
 // Display Functions
-void displayItems(VendingItem items[], int menuSize);
-void printSelectedItems(UserSelection *selection);
+void displayItems(VendingItem[], int );
+void printSelectedItems(UserSelection *);
 
 // User Input Functions
-int isValidDenomination(float denomination);
-void userMoneyInput(float *userMoney, CashRegister cash[], int registerSize);
-void selectItems(VendingItem items[], int menuSize, UserSelection *selection);
-void processSelection(VendingItem items[], int menuSize, UserSelection *selection);
+int isValidDenomination(float );
+void userMoneyInput(float *, CashRegister [], int );
+void selectItems(VendingItem [], int , UserSelection *);
+void processSelection(VendingItem [], int , UserSelection *);
 
 // Selection Update Functions
-void updateSelectedItems(UserSelection *selection, VendingItem *selectedItem);
-void getSilog(UserSelection *selection);
+void updateSelectedItems(UserSelection *, VendingItem *);
+void getSilog(UserSelection *);
 
 // Cash Transaction Functions
-void getChange(CashRegister cash[], float *userMoney, int registerSize, float *totalItemCost,
-               int *confirmation);
+void getChange(CashRegister [], float *, int , float *, int *);
 
 #endif  // VENDING_MACHINE_H
