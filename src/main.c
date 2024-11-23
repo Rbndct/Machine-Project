@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "data_management.c"
 #include "main_menu.c"
 #include "maintenance.c"
 #include "vending_machine.c"
@@ -43,10 +44,13 @@ int main()
     UserSelection selection = {{{0}}, {0}, {0.0}, 0, 0.0};
     int registerSize = 10, menuSize = 8, userMenuSelection = 0, confirmation = 0;
     int maintenancePassword = 123456;
+    int isRunning = 1;  // Condition to control the main loop
+
     // Loop to show the main menu until the user chooses to exit
-    while (1)
+    while (isRunning)
     {
-        int displayMenu = handleMenuSelection(userMenuSelection);
+        int displayMenu;
+        displayMenu = handleMenuSelection(userMenuSelection);
 
         switch (displayMenu)
         {
@@ -68,7 +72,8 @@ int main()
                 if (maintenanceValidation(&maintenancePassword))
                 {
                     printf("Machine going offline...\n");
-                    return 0;
+                    saveItemsToCSV(items, menuSize);
+                    isRunning = 0;  // Set the flag to stop the loop
                 }
                 else
                 {

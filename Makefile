@@ -4,7 +4,7 @@
 
 # Compiler settings - Can be customized.
 CC = gcc                            # Compiler to use
-CXXFLAGS = -std=c11 -Wall -I include  # Compilation flags: 
+CXXFLAGS = -std=c99 -Wall -I include  # Compilation flags: 
                                       # -std=c11: Use C11 standard
                                       # -Wall: Enable all warnings
                                       # -I include: Include path for header files
