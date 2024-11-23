@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+#include "constants.h"
 #include "data_structures.h"
 #include "maintenance.h"
 #include "vending_machine.h"
@@ -13,7 +14,7 @@
  */
 int handleMenuSelection(int userMenuSelection)
 {
-    printf("\n\nWelcome to Nats Silog Vending Machine!!\n");
+    printf("\nWelcome to Nats Silog Vending Machine!!\n");
     printf("1 - Vending Machine\n");
     printf("2 - Staff Maintenance\n");
     printf("3 - Shutdown Machine\n");
@@ -29,7 +30,7 @@ int handleMenuSelection(int userMenuSelection)
  * @param availableItems Array of VendingItem structures representing the items available in the
  * vending machine.
  * @param itemCount Size of the availableItems array.
- * @param userMoney Pointer to a float representing the user's money available for purchase.
+ * @param insertedMoney Pointer to a float representing the user's money available for purchase.
  * @param cashRegister Array of CashRegister structures representing the available denominations in
  * the machine.
  * @param cashRegisterSize Size of the cashRegister array.
@@ -42,36 +43,59 @@ void processPurchase(VendingItem availableItems[], int itemCount, float *inserte
                      CashRegister cashRegister[], int cashRegisterSize,
                      UserSelection *userSelection, int *orderConfirmation)
 {
-    // Display the items available for purchase
-    displayItems(availableItems, itemCount);
+    int continueVending;
+    continueVending = 1;  // Variable to control the loop (1 for yes, 0 for no)
 
-    // Prompt the user to input their money
-    userMoneyInput(insertedMoney, cashRegister, cashRegisterSize);
-
-    // Allow the user to select items they wish to purchase
-    selectItems(availableItems, itemCount, userSelection);
-
-    // Calculate the change based on user's money and total item cost
-    getChange(cashRegister, insertedMoney, cashRegisterSize, &userSelection->totalItemCost,
-              orderConfirmation);
-
-    // If the transaction is confirmed by the user
-    if (*orderConfirmation)
+    do
     {
-        // Process the purchase (deduct stock, finalize purchase)
-        processTransaction(availableItems, itemCount, userSelection);
+        // Display the items available for purchase
+        displayItems(availableItems, itemCount);
 
-        // Reset the order details after completing the transaction
-        resetOrderAfterConfirm(userSelection, insertedMoney);
+        // Prompt the user to input their money
+        userMoneyInput(insertedMoney, cashRegister, cashRegisterSize);
 
-        printf("\nTransaction completed.\n");
-    }
-    else
+        // Allow the user to select items they wish to purchase
+        selectItems(availableItems, itemCount, userSelection, insertedMoney, cashRegister,
+                    cashRegisterSize);
+
+        // Calculate the change based on user's money and total item cost
+        getChange(cashRegister, insertedMoney, cashRegisterSize, &userSelection->totalItemCost,
+                  orderConfirmation);
+
+        // If the transaction is confirmed by the user
+        if (*orderConfirmation)
+        {
+            // Reset the order details after completing the transaction
+            resetOrderAfterConfirm(userSelection, insertedMoney);
+
+            printf("\nTransaction completed.\n" SEPARATOR);
+        }
+        else
+        {
+            // If the user cancels the order, reset the order (return stock, refund money)
+            resetOrderAfterCancel(userSelection, insertedMoney, availableItems, itemCount);
+
+            printf("\nOrder has been canceled.\n");
+        }
+
+        // Ask if the user wants to start the vending process again
+        int scanResult;
+        printf("\nStart Vending Again?\n1. Yes\n0. Return to Main Menu: ");
+
+        scanResult = scanf("%d", &continueVending);
+        while (scanResult != 1 || (continueVending != 1 && continueVending != 0))
+        {
+            while (getchar() != '\n');  // Clear invalid input from the buffer
+            printf(
+                "Invalid input! Please enter 1 to start again or 0 to return to the main menu: ");
+            scanResult = scanf("%d", &continueVending);
+        }
+
+    } while (continueVending == 1);  // Continue the loop if the user selects 1 (Yes)
+
+    if (continueVending == 0)
     {
-        // If the user cancels the order, reset the order (return stock, refund money)
-        resetOrderAfterCancel(userSelection, insertedMoney, availableItems, itemCount);
-
-        printf("\nOrder has been canceled.\n");
+        printf("Returning to the main menu...\n" SEPARATOR);
     }
 }
 
@@ -82,52 +106,59 @@ void processPurchase(VendingItem availableItems[], int itemCount, float *inserte
  */
 void handleMaintenanceOptions(VendingItem items[], int menuSize)
 {
-    int maintenanceSelection = 0;  // Initialize variable for user selection
-    int validInput = 0;            // Flag to check if input is valid
+    int maintenanceSelection;
+    int exitMaintenance;
 
-    while (!validInput)
+    maintenanceSelection = 0;  // Initialize variable for user selection
+    exitMaintenance = 0;       // Initialize flag to check if user wants to exit
+
+    while (exitMaintenance == 0)  // Continue showing the menu until the user decides to exit
     {
         // Display maintenance menu options
-        printf(
-            "\nMaintenance Features\n"
-            "---------------------\n"
-            "1 - View Inventory\n"
-            "2 - Set Item Price\n"
-            "3 - Restock Item\n"
-            "Enter your choice: ");
+        printf(SEPARATOR
+               "\nMaintenance Features\n"
+               "1 - View Inventory\n"
+               "2 - Set Item Price\n"
+               "3 - Restock Item\n"
+               "0 - Exit Maintenance Menu\n"
+               "\nEnter your choice: ");
 
         // Prompt for and capture the user's selection
-        if (scanf("%d", &maintenanceSelection) != 1)
+        int scanResult;
+        scanResult = scanf("%d", &maintenanceSelection);
+
+        while (scanResult != 1)  // If input is not valid, request valid input
         {
-            printf("Invalid input. Please enter a number between 1 and 3.\n");
+            printf("Invalid input. Please enter a number between 0 and 3.\n");
             // Clear the invalid input from the buffer
-            while (getchar() != '\n');  // consume invalid input
+            while (getchar() != '\n');  // Consume invalid input
+            scanResult = scanf("%d", &maintenanceSelection);
         }
-        else if (maintenanceSelection < 1 || maintenanceSelection > 3)
+
+        if (maintenanceSelection < 0 || maintenanceSelection > 3)
         {
-            printf("Invalid choice. Please enter a number between 1 and 3.\n");
+            printf("Invalid choice. Please enter a number between 0 and 3.\n");
         }
         else
         {
-            validInput = 1;  // If valid input, exit the loop and proceed
+            // Handle the selected maintenance option
+            if (maintenanceSelection == 1)
+            {
+                viewInventory(items, menuSize);
+            }
+            else if (maintenanceSelection == 2)
+            {
+                modifyPrice(items, menuSize);
+            }
+            else if (maintenanceSelection == 3)
+            {
+                restockInventory(items, menuSize);
+            }
+            else if (maintenanceSelection == 0)
+            {
+                exitMaintenance = 1;  // Set flag to exit the loop
+                printf("Exiting Maintenance Menu...\n");
+            }
         }
-    }
-
-    // Handle the selected maintenance option
-    switch (maintenanceSelection)
-    {
-        case 1:
-            viewInventory(items, menuSize);
-            break;
-        case 2:
-            modifyPrice(items, menuSize);
-            break;
-        case 3:
-            restockInventory(items, menuSize);
-            break;
-        default:
-            // This case will not be reached due to previous validation
-            printf("Invalid maintenance option.\n");
-            break;
     }
 }

@@ -12,9 +12,8 @@ void printSelectedItems(UserSelection *);
 // User Input Functions
 int isValidDenomination(float);
 void userMoneyInput(float *, CashRegister[], int);
-void selectItems(VendingItem[], int, UserSelection *);
-void processSelection(VendingItem[], int, UserSelection *);
-
+void processSelection(VendingItem[], int, UserSelection *, float *, CashRegister[], int);
+void selectItems(VendingItem[], int, UserSelection *, float *, CashRegister[], int);
 // Selection Update Functions
 void updateSelectedItems(UserSelection *, VendingItem *);
 void getSilog(UserSelection *);

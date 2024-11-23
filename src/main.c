@@ -25,7 +25,6 @@
 #include "maintenance.c"
 #include "vending_machine.c"
 
-
 // Main function for the vending machine program
 int main()
 {
@@ -50,7 +49,8 @@ int main()
     // Loop to show the main menu until the user chooses to exit
     while (isRunning)
     {
-        int displayMenu = handleMenuSelection(userMenuSelection);
+        int displayMenu;
+        displayMenu = handleMenuSelection(userMenuSelection);
 
         switch (displayMenu)
         {
