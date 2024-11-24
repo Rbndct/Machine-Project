@@ -1,7 +1,6 @@
 ########################################################################
 ####################### Makefile for Compiling main.c ##################
 ########################################################################
-
 # Compiler settings - Can be customized.
 CC = gcc                            # Compiler to use
 CXXFLAGS = -std=c99 -Wall -I include  # Compilation flags: 
