@@ -18,7 +18,7 @@
  */
 int handleMenuSelection(int userMenuSelection)
 {
-    printf("\nWelcome to Nats Silog Vending Machine!!\n");
+    printf("\nWelcome to Silog Vending Machine!!\n");
     printf("1 - Vending Machine\n");
     printf("2 - Staff Maintenance\n");
     printf("3 - Shutdown Machine\n");
