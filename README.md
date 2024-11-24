@@ -7,7 +7,7 @@ This project simulates a vending machine that allows users to:
 - Select items from the machine based on availability
 - Automatically update stock and calculate the total cost after each transaction
 
-## Features (As of 05/11/2024)
+## Features (As of 24/11/2024)
 - Item selection and display
 - Valid cash denomination acceptance
 - Real-time stock updates after each purchase
@@ -57,5 +57,5 @@ This project simulates a vending machine that allows users to:
 This project was developed with the help of the following resources:
 - [W3Schools C Programming](https://www.w3schools.com/c/c_intro.php)
 - [Programiz C Programming](https://www.programiz.com/c-programming)
-- [Devdocs.io](https://devdocs.io/c-error-handling/)
+- [Devdocs.io](https://devdocs.io/c/)
 - Lessons and videos from my Grade 12 Data Structures class at iACADEMY, provided by Sir Wilson Tiu.
