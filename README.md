@@ -31,9 +31,9 @@ This project simulates a vending machine that allows users to:
 - [ ] Saving and loading the updated price and inventory count to a file in CSV format.
 
 ### Cash Register Features
-- [ ] View cash register (number of each denomination, total amount)
-- [ ] Stock/restock cash register (input denominations and quantities)
-- [ ] Cash out (dispense amount or input denomination and quantity, display appropriate denominations)
+- [x] View cash register (number of each denomination, total amount)
+- [x] Stock/restock cash register (input denominations and quantities)
+- [x] Cash out (dispense amount or input denomination and quantity, display appropriate denominations)
 
 ## How to Run
 1. Clone the repository:
@@ -44,9 +44,9 @@ This project simulates a vending machine that allows users to:
     ```bash
     cd Machine-Project
     ```
-3. Compile the program:
+3. Compile the program using `make`:
     ```bash
-    gcc -Wall -std=c99 src/main.c -o program
+    make
     ```
 4. Run the executable:
     ```bash
