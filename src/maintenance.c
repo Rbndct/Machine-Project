@@ -454,15 +454,23 @@ void handleAmountBasedCashOut(CashRegister cashRegister[], int cashRegisterSize)
     int amountToClaimCents;    // amountToClaimCents val to avoid floating point precision errors
     int dispensed[cashRegisterSize];  // Track the number of notes/coins dispensed
 
-    // Prompt the user for the amount they wish to claim
-    printf("\nEnter the amount you wish to claim (in PHP): ");
-    scanResult = scanf("%f", &amountToClaim);
+    int validInput = 0;  // Variable to control the loop for valid input
 
-    // Validate the input: amount must be a positive number
-    if (scanResult != 1 || amountToClaim <= 0)
+    while (!validInput)  // Loop until the user enters a valid numeric value
     {
-        printf("Invalid input or amount. Please enter a valid option.\n");
-        while (getchar() != '\n');  // Clear invalid input from the buffer
+        printf("\nEnter the amount you wish to claim (in PHP): ");
+        scanResult = scanf("%f", &amountToClaim);
+
+        // Validate the input: amount must be a positive number
+        if (scanResult != 1 || amountToClaim <= 0)
+        {
+            printf("Invalid input or amount. Please enter a valid numeric option.\n");
+            while (getchar() != '\n');  // Clear invalid input from the buffer
+        }
+        else
+        {
+            validInput = 1;  // Set to 1 to exit the loop when a valid amount is entered
+        }
     }
 
     // Convert the amount to cents for precise calculations
@@ -478,6 +486,8 @@ void handleAmountBasedCashOut(CashRegister cashRegister[], int cashRegisterSize)
     }
 
     // Attempt to dispense denominations starting from the highest denomination
+    int dispensingPossible = 1;  // Flag to check if dispensing is possible
+
     for (j = 0; j < cashRegisterSize; j++)
     {
         int cashDenominationCents =
@@ -504,8 +514,11 @@ void handleAmountBasedCashOut(CashRegister cashRegister[], int cashRegisterSize)
         {
             cashRegister[z].amountLeft += dispensed[z];
         }
+
+        dispensingPossible = 0;  // Set flag to indicate dispensing was not successful
     }
-    else
+
+    if (dispensingPossible)  // Only proceed if dispensing was successful
     {
         // If the amount was successfully dispensed, display the breakdown
         printf("\nDispensed Denominations:\n");
