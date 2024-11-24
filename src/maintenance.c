@@ -1,7 +1,10 @@
 #include "maintenance.h"
 
+#include <math.h>
+
 #include "constants.h"
 #include "data_structures.h"
+
 
 /**
  * @brief Validates the maintenance password input from the user.
@@ -53,12 +56,12 @@ int maintenanceValidation(int *maintenancePassword)
 
 void viewInventory(VendingItem items[], int menuSize)
 {
+    int i;
     // Print header for the item details table
     printf("\n\n%-12s | %-15s | %-10s | %-10s\n", "Item Number", "Item Name", "Price (PHP)",
            "Stock Left");
     printf(SEPARATOR "\n");
 
-    int i;
     // Loop through the items array to display each item's details
     for (i = 0; i < menuSize; i++)
     {
@@ -93,64 +96,77 @@ void viewInventory(VendingItem items[], int menuSize)
  */
 void modifyPrice(VendingItem items[], int menuSize)
 {
+    int modifyItemNumber;  // Variable for user input
+    int itemFound;         // Flag for if item is found
+    int result;            // For input validation result
+    int retry;             // Flag to control retrying the process
+
     // Display the item list with item numbers, names, and prices
     printf("\n%-12s | %-15s | %-10s\n", "Item Number", "Item Name", "Price (PHP)");
     printf(SEPARATOR "\n");
 
-    int i;
+    int i;  // Declare loop variable for displaying items
     for (i = 0; i < menuSize; i++)
     {
-        int itemNumber = items[i].itemNumber;
-        char *itemName = items[i].name;
-        float itemPrice = items[i].price;
-
-        // Display item details
-        printf("%-12d | %-15s | %-10.2f\n", itemNumber, itemName, itemPrice);
+        printf("%-12d | %-15s | %-10.2f\n", items[i].itemNumber, items[i].name, items[i].price);
     }
     printf(SEPARATOR "\n");
 
-    // Prompt for item selection
-    int modifyItemNumber;
-    printf("Enter the item number to modify: ");
-    scanf("%d", &modifyItemNumber);
+    retry = 1;  // Initialize retry flag to true
 
-    // Check if the entered item number exists and update its price
-    int itemFound = 0;
-    int j;
-    for (j = 0; j < menuSize; j++)
+    while (retry)
     {
-        int currentItemNumber;
-        currentItemNumber = items[j].itemNumber;
+        // Prompt for item selection
+        printf("Enter the item number to modify: ");
+        result = scanf("%d", &modifyItemNumber);
 
-        if (currentItemNumber == modifyItemNumber)
+        // Check if input is valid
+        if (result != 1)
         {
-            itemFound = 1;
+            printf("Invalid input. Please enter a valid item number.\n");
+            while (getchar() != '\n');  // Clear input buffer
+            retry = 1;                  // Keep retrying until valid input
+        }
+        else
+        {
+            itemFound = 0;  // Reset flag before searching for item
 
-            // Declare and initialize the new price variable
-            float newPrice;
-            printf("Enter the new price: ");
-            scanf("%f", &newPrice);
-
-            // Validate the new price and apply if positive
-            if (newPrice > 0)
+            int j;  // Declare loop variable for searching item number
+            for (j = 0; j < menuSize; j++)
             {
-                // Set the selected index item to the user inputted price
-                items[j].price = newPrice;
-                printf("Price updated successfully!\n");
+                if (items[j].itemNumber == modifyItemNumber)
+                {
+                    itemFound = 1;  // Mark item as found
+
+                    // Declare and initialize the new price variable
+                    float newPrice;
+                    printf("Enter the new price: ");
+                    result = scanf("%f", &newPrice);
+
+                    // Validate the new price and apply if positive
+                    if (result != 1 || newPrice <= 0)
+                    {
+                        printf("\nError: Please enter a positive number for the price.\n");
+                        while (getchar() != '\n');  // Clear input buffer
+                        retry = 1;                  // Retry on invalid price input
+                    }
+                    else
+                    {
+                        // Set the selected item's price to the new price
+                        items[j].price = newPrice;
+                        printf("Price updated successfully!\n");
+                        retry = 0;  // Exit loop after successful price update
+                    }
+                }
             }
-            else
+
+            // If no item was found, prompt user to retry
+            if (itemFound == 0)
             {
-                // Handle invalid price input
-                printf("\nError: Please enter a positive number for the price.\n");
-                j--;  // Decrease index to retry current item
+                printf("Invalid Item Number! No item found with the entered number.\n");
+                retry = 1;  // Retry on invalid item number
             }
         }
-    }
-
-    // Error handling if there is no such item number
-    if (itemFound == 0)
-    {
-        printf("Invalid Item Number! No item found with the entered number.\n");
     }
 }
 
@@ -161,27 +177,22 @@ void modifyPrice(VendingItem items[], int menuSize)
  */
 void restockInventory(VendingItem items[], int menuSize)
 {
-    // Variable declaration
-    int modifyItemNumber;
-    int reStock;
-    int isValid = 0;  // Variable to track if a valid item number was entered
+    int modifyItemNumber;  // Declare item number to modify
+    int reStock;           // Declare restock quantity
+    int isValid;           // Flag to check item validity
+    int result;            // For input validation result
+    int retry;             // Flag to control retrying
+    int i;                 // Declare loop variable for displaying items
+    int j;                 // Declare loop variable for searching item number
 
     // Display the inventory with stock levels
     printf("\n%-12s | %-15s | %-10s\n", "Item Number", "Item Name", "Stock Left");
     printf(SEPARATOR "\n");
 
-    int i;
     for (i = 0; i < menuSize; i++)
     {
-        int itemNumber = items[i].itemNumber;
-        char *itemName = items[i].name;
-        int itemStock = items[i].stock;
-
-        // Display item details
-        printf("%-12d | %-15s | %-10d", itemNumber, itemName, itemStock);
-
-        // Indicate if an item is out of stock
-        if (itemStock == 0)
+        printf("%-12d | %-15s | %-10d", items[i].itemNumber, items[i].name, items[i].stock);
+        if (items[i].stock == 0)
         {
             printf(" %-12s", OUT_OF_STOCK_MSG);
         }
@@ -189,50 +200,58 @@ void restockInventory(VendingItem items[], int menuSize)
     }
     printf(SEPARATOR "\n");
 
-    // Prompt user to select an item to restock
-    printf("Input item number to modify: ");
-    int result = scanf("%d", &modifyItemNumber);
+    retry = 1;  // Initialize retry flag to true
 
-    if (result != 1)
+    while (retry)
     {
-        printf("Invalid input. Please enter a valid item number.\n");
-    }
+        // Prompt for item number
+        printf("Input item number to modify: ");
+        result = scanf("%d", &modifyItemNumber);
 
-    else
-    {
-        // Search for the item and update its stock if found
-        int j;
-        for (j = 0; j < menuSize; j++)
+        // Check if input is valid
+        if (result != 1)
         {
-            int currentItemNumber = items[j].itemNumber;
+            printf("Invalid input. Please enter a valid item number.\n");
+            while (getchar() != '\n');  // Clear input buffer
+            retry = 1;                  // Keep retrying until valid input
+        }
+        else
+        {
+            isValid = 0;  // Reset validity flag before searching for the item
 
-            if (currentItemNumber == modifyItemNumber)
+            for (j = 0; j < menuSize; j++)
             {
-                isValid = 1;  // Mark item as valid
-
-                // Ask for the amount of stock to add
-                printf("Input stock to add: ");
-                int result = scanf("%d", &reStock);
-
-                if (result != 1 || reStock <= 0)
+                if (items[j].itemNumber == modifyItemNumber)
                 {
-                    printf("\nYou must input a positive number for stock addition.\n");
-                }
+                    isValid = 1;  // Mark item as valid
 
-                else
-                {
-                    // Update the stock of the selected item
-                    items[j].stock += reStock;
-                    printf("Stock updated successfully.\n");
+                    // Prompt for stock to add
+                    printf("Input stock to add: ");
+                    result = scanf("%d", &reStock);
+
+                    // Validate quantity input
+                    if (result != 1 || reStock <= 0)
+                    {
+                        printf("\nYou must input a positive number for stock addition.\n");
+                        while (getchar() != '\n');  // Clear input buffer
+                        retry = 1;                  // Retry if quantity is invalid
+                    }
+                    else
+                    {
+                        // Update stock
+                        items[j].stock += reStock;
+                        printf("Stock updated successfully.\n");
+                        retry = 0;  // Exit loop after successful update
+                    }
                 }
             }
-        }
 
-        // Check if the item was valid and found
-        if (!isValid)
-        {
-            // Inform user if item number is invalid
-            printf("Invalid Item Number! Please try again.\n");
+            // If item number was invalid, ask to retry
+            if (isValid == 0)
+            {
+                printf("Invalid Item Number! Please try again.\n");
+                retry = 1;  // Retry on invalid item number
+            }
         }
     }
 }
@@ -245,13 +264,14 @@ void restockInventory(VendingItem items[], int menuSize)
 void viewCashRegister(CashRegister cashRegister[], int cashRegisterSize)
 {
     float totalAmount;
+    int i;
     totalAmount = 0.0;  // Initialize totalAmount
 
-    printf("\n==================== Cash Register ====================\n");
-    printf("| Denomination (PHP) | Amount Left | Total Value (PHP) |\n");
+    // Print the header for the cash register table
+    printf("\n%-12s | %-11s | %-12s |\n", "Denomination (PHP)", "Amount Left", "Total Value (PHP)");
     printf(SEPARATOR "\n");
 
-    int i;
+    // Loop through each denomination in the register and print details
     for (i = 0; i < cashRegisterSize; i++)
     {
         float denominationTotal;
@@ -259,16 +279,15 @@ void viewCashRegister(CashRegister cashRegister[], int cashRegisterSize)
 
         totalAmount += denominationTotal;
 
-        // Display each denomination, the amount left, and the total value of that denomination
-        printf("| %-10.2f | %-15d | %-8.2f |\n", cashRegister[i].cashDenomination,
+        // Print each denomination, amount left, and total value of that denomination
+        printf("| %-16.2f | %-12d | %-15.2f |\n", cashRegister[i].cashDenomination,
                cashRegister[i].amountLeft, denominationTotal);
     }
 
     printf(SEPARATOR "\n");
 
-    // Display the total cash in the register
-    printf("| Total Cash in Register:                   PHP %-8.2f |\n", totalAmount);
-    printf(SEPARATOR "\n");
+    // Print the total cash in the register
+    printf("| %-30s PHP %-14.2f |\n", "Total Cash in Register:", totalAmount);
 }
 
 /**
@@ -281,50 +300,48 @@ void reStockRegister(CashRegister cashRegister[], int cashRegisterSize)
     float denomination;
     int quantity;
     int validDenomination = 0;  // Flag to check if the denomination is valid
+    int scanResult;
+    int i;
+    int quantityScanResult;
 
     // Display the current cash register
     viewCashRegister(cashRegister, cashRegisterSize);
 
-    printf("\nEnter the denomination to restock: ");
-    int scanResult;
-    scanResult = scanf("%f", &denomination);
-
-    if (scanResult != 1)
+    // Loop until valid denomination and quantity are entered
+    while (validDenomination == 0)
     {
-        printf("Invalid input. Please enter a valid denomination.\n");
-        // Clear the input buffer
-        while (getchar() != '\n');
-    }
-    else
-    {
-        // Search for the entered denomination in the cash register
-        int i;
-        validDenomination = 0;  // Reset flag before searching
+        printf("\nEnter the denomination to restock: ");
+        scanResult = scanf("%f", &denomination);
 
-        for (i = 0; i < cashRegisterSize; i++)
+        if (scanResult != 1)
         {
-            if (cashRegister[i].cashDenomination == denomination)
+            printf("Invalid input. Please enter a valid denomination.\n");
+            // Clear the input buffer
+            while (getchar() != '\n');
+        }
+        else
+        {
+            validDenomination = 0;  // Reset flag before searching for denomination
+
+            // Search for the entered denomination in the cash register
+            for (i = 0; i < cashRegisterSize; i++)
             {
-                validDenomination = 1;
-
-                printf("Enter the quantity to add (positive number only): ");
-
-                // Separate the scanf and condition check
-                int quantityScanResult;
-                quantityScanResult = scanf("%d", &quantity);
-
-                if (quantityScanResult != 1)
+                if (cashRegister[i].cashDenomination == denomination)
                 {
-                    printf("Invalid input. Please enter a valid quantity.\n");
-                    // Clear the input buffer
-                    while (getchar() != '\n');
-                }
-                else
-                {
-                    // Check if quantity is positive
-                    if (quantity < 0)
+                    validDenomination = 1;  // Denomination found
+
+                    // Ask for the quantity to restock
+                    printf("Enter the quantity to add (positive number only): ");
+                    quantityScanResult = scanf("%d", &quantity);
+
+                    // If quantity is not valid or not positive, prompt again
+                    if (quantityScanResult != 1 || quantity <= 0)
                     {
-                        printf("Invalid quantity. Restock quantity must be a positive number.\n");
+                        printf(
+                            "Invalid quantity. Restock quantity must be a positive number greater "
+                            "than zero.\n");
+                        while (getchar() != '\n');  // Clear input buffer
+                        validDenomination = 0;      // Keep looping until valid quantity is entered
                     }
                     else
                     {
@@ -334,17 +351,67 @@ void reStockRegister(CashRegister cashRegister[], int cashRegisterSize)
                                cashRegister[i].cashDenomination);
                     }
                 }
+            }
 
-                // Denomination found, exit the loop
-                break;
+            // If the denomination is not found in the cash register
+            if (validDenomination == 0)
+            {
+                printf(
+                    "Invalid denomination. Please select a valid denomination from the "
+                    "register.\n");
             }
         }
+    }
+}
 
-        // If no valid denomination was found
-        if (validDenomination == 0)
+void cashOut(CashRegister cashRegister[], int cashRegisterSize)
+{
+    int userOption;    // Variable to store user's choice
+    int isValidInput;  // Flag for validating user input
+
+    // Display cash-out options to the user
+    printf(SEPARATOR
+           "\nCash Out Options:\n"
+           "1 - Cash Out by Amount\n"
+           "2 - Cash Out by Denomination and Quantity\n"
+           "0 - Cancel\n"
+           "Enter your choice: ");
+
+    userOption = -1;
+    isValidInput = 0;  // Initialize input validation flag
+    while (!isValidInput)
+    {
+        // Capture user input
+        int scanResult;
+        scanResult = scanf("%d", &userOption);
+
+        if (scanResult != 1)
         {
-            printf("Invalid denomination. Please select a valid denomination from the register.\n");
+            printf("Invalid input. Please enter a valid option (0, 1, or 2): ");
+            while (getchar() != '\n');  // Clear invalid input from the buffer
         }
+        else if (userOption < 0 || userOption > 2)
+        {
+            printf("Invalid option. Please enter 0, 1, or 2: ");
+        }
+        else
+        {
+            isValidInput = 1;  // Valid input received
+        }
+    }
+
+    // Handle user choice
+    if (userOption == 1)
+    {
+        handleAmountBasedCashOut(cashRegister, cashRegisterSize);
+    }
+    else if (userOption == 2)
+    {
+        handleQuantityBasedCashOut(cashRegister, cashRegisterSize);
+    }
+    else if (userOption == 0)
+    {
+        printf("Cash-out operation canceled.\n");
     }
 }
 
@@ -356,12 +423,91 @@ void reStockRegister(CashRegister cashRegister[], int cashRegisterSize)
 void handleAmountBasedCashOut(CashRegister cashRegister[], int cashRegisterSize)
 {
     float amountToClaim;
+    int scanResult;
 
     // Prompt the user for the amount they wish to claim
-    printf("\nEnter the amount you wish to claim: ");
-
-    int scanResult;
+    printf("\nEnter the amount you wish to claim (in PHP): ");
     scanResult = scanf("%f", &amountToClaim);
+
+    if (scanResult != 1 || amountToClaim <= 0)
+    {
+        printf("Invalid input or amount. Operation canceled.\n");
+        return;  // Exit the function if the input is invalid or amount is less than or equal to
+                 // zero
+    }
+
+    // Convert the amount to claim to an integer (cents) for precise calculations
+    int amountToClaimCents = (int) (round(amountToClaim * 100));  // Round to nearest cent
+
+    int dispensed[cashRegisterSize];                // Track the number of denominations dispensed
+    int remainingAmountCents = amountToClaimCents;  // Remaining amount to claim in cents
+    int i, j;
+
+    // Initialize dispensed denominations to 0
+    for (i = 0; i < cashRegisterSize; i++)
+    {
+        dispensed[i] = 0;
+    }
+
+    // Attempt to dispense denominations starting from the highest denomination
+    for (j = 0; j < cashRegisterSize; j++)
+    {
+        int cashDenominationCents =
+            (int) (round(cashRegister[j].cashDenomination * 100));  // Convert denomination to cents
+
+        // While there is still remaining amount and enough of that denomination
+        while (remainingAmountCents >= cashDenominationCents && cashRegister[j].amountLeft > 0)
+        {
+            remainingAmountCents -=
+                cashDenominationCents;     // Subtract the denomination from remaining amount
+            cashRegister[j].amountLeft--;  // Reduce the amount of that denomination
+            dispensed[j]++;                // Increase the count for this denomination
+        }
+    }
+
+    // If the exact amount couldn't be dispensed, revert the changes
+    if (remainingAmountCents > 0)
+    {
+        printf("\nUnable to dispense exact stated amount. Operation canceled.\n");
+
+        // Restore quantities in the cash register
+        for (int z = 0; z < cashRegisterSize; z++)
+        {
+            cashRegister[z].amountLeft += dispensed[z];
+        }
+    }
+    else
+    {
+        // Print dispensed denominations
+        printf("\nDispensed Denominations:\n");
+        printf(SEPARATOR "\n");
+        for (int x = 0; x < cashRegisterSize; x++)
+        {
+            if (dispensed[x] > 0)
+            {
+                printf("  %d x PhP%.2f\n", dispensed[x], cashRegister[x].cashDenomination);
+            }
+        }
+
+        // Print the total amount dispensed
+        printf(SEPARATOR "\n");
+        printf("Transaction Completed. Amount Dispensed: PhP%.2f\n",
+               amountToClaim);  // Output the original amount in pesos
+    }
+}
+
+void handleQuantityBasedCashOut(CashRegister cashRegister[], int cashRegisterSize)
+{
+    float denomination;
+    int quantity;
+    int scanResult;
+    int validDenomination = 0;
+    int sufficientQuantity = 0;
+    int i;
+
+    // Prompt the user for the denomination
+    printf("\nEnter the denomination you wish to claim: ");
+    scanResult = scanf("%f", &denomination);
 
     if (scanResult != 1)
     {
@@ -369,59 +515,56 @@ void handleAmountBasedCashOut(CashRegister cashRegister[], int cashRegisterSize)
     }
     else
     {
-        if (amountToClaim <= 0)
+        // Search for the denomination in the cash register
+        i = 0;
+        while (i < cashRegisterSize && validDenomination == 0)
         {
-            printf("Invalid amount. Operation canceled.\n");
-        }
-        else
-        {
-            int dispensed[cashRegisterSize];
-            int i;
-            for (i = 0; i < cashRegisterSize; i++)
+            if (cashRegister[i].cashDenomination == denomination)
             {
-                dispensed[i] = 0;  // Initialize dispensed denominations to 0
-            }
+                validDenomination = 1;
 
-            float remainingAmount;
-            remainingAmount = amountToClaim;
+                // Prompt the user for the quantity
+                printf("Enter the quantity you wish to claim: ");
+                scanResult = scanf("%d", &quantity);
 
-            int j;
-            for (int j = 0; j < cashRegisterSize; j++)
-            {
-                while (remainingAmount >= cashRegister[j].cashDenomination &&
-                       cashRegister[j].amountLeft >= 0.05)
+                if (scanResult != 1 || quantity <= 0)
                 {
-                    remainingAmount -= cashRegister[j].cashDenomination;
-                    cashRegister[j].amountLeft--;
-                    dispensed[j]++;
+                    printf("Invalid quantity. Operation canceled.\n");
                 }
-            }
-
-            if (remainingAmount > 0)
-            {
-                printf("\nUnable to dispense exact stated amount. Operation canceled.\n");
-
-                // Restore quantities in the cash register
-                int z;
-                for (z = 0; z < cashRegisterSize; z++)
+                else
                 {
-                    cashRegister[z].amountLeft += dispensed[z];
-                }
-            }
-            else
-            {
-                printf("\nDispensed denominations:\n" SEPARATOR);
-                int x;
-                for (x = 0; x < cashRegisterSize; x++)
-                {
-                    if (dispensed[x] > 0)
+                    // Check if there is sufficient quantity in the cash register
+                    if (quantity <= cashRegister[i].amountLeft)
                     {
-                        printf("%d - PhP%.2f\n", dispensed[x], cashRegister[x].cashDenomination);
+                        sufficientQuantity = 1;
+                        // Perform the cash out
+                        cashRegister[i].amountLeft -= quantity;
+                        printf("Successfully dispensed %d - PhP%.2f\n", quantity, denomination);
+                        printf("Remaining quantity of PhP%.2f: %d\n", denomination,
+                               cashRegister[i].amountLeft);
+                    }
+                    else
+                    {
+                        printf("Insufficient quantity for PhP%.2f. Only %d remaining.\n",
+                               denomination, cashRegister[i].amountLeft);
                     }
                 }
-
-                printf("\nTransaction completed. Total dispensed: PhP%.2f\n", amountToClaim);
             }
+            i++;
+        }
+
+        // If no valid denomination was found
+        if (validDenomination == 0)
+        {
+            printf(
+                "Invalid denomination. Please choose a valid denomination from the cash "
+                "register.\n");
+        }
+
+        // If the denomination is valid but the quantity is insufficient
+        if (validDenomination == 1 && sufficientQuantity == 0 && scanResult == 1 && quantity > 0)
+        {
+            printf("Operation canceled due to insufficient quantity.\n");
         }
     }
 }

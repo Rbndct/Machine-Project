@@ -104,59 +104,149 @@ void processPurchase(VendingItem availableItems[], int itemCount, float *inserte
  * @param items Array of VendingItem structures representing the inventory.
  * @param menuSize Number of items in the inventory.
  */
-void handleMaintenanceOptions(VendingItem items[], int menuSize)
+void handleMaintenanceOptions(VendingItem items[], int menuSize, CashRegister cashRegister[],
+                              int cashRegisterSize)
 {
     int maintenanceSelection;
-    int exitMaintenance;
-
-    maintenanceSelection = 0;  // Initialize variable for user selection
-    exitMaintenance = 0;       // Initialize flag to check if user wants to exit
+    int exitMaintenance = 0;  // Flag to check if user wants to exit the maintenance menu
 
     while (exitMaintenance == 0)  // Continue showing the menu until the user decides to exit
     {
         // Display maintenance menu options
         printf(SEPARATOR
                "\nMaintenance Features\n"
-               "1 - View Inventory\n"
-               "2 - Set Item Price\n"
-               "3 - Restock Item\n"
+               "1 - Inventory Features\n"
+               "2 - Cash Register Features\n"
                "0 - Exit Maintenance Menu\n"
                "\nEnter your choice: ");
 
-        // Prompt for and capture the user's selection
         int scanResult;
         scanResult = scanf("%d", &maintenanceSelection);
 
         while (scanResult != 1)  // If input is not valid, request valid input
         {
-            printf("Invalid input. Please enter a number between 0 and 3.\n");
+            printf("Invalid input. Please enter a number between 0 and 2.\n");
             // Clear the invalid input from the buffer
             while (getchar() != '\n');  // Consume invalid input
             scanResult = scanf("%d", &maintenanceSelection);
         }
 
-        if (maintenanceSelection < 0 || maintenanceSelection > 3)
+        if (maintenanceSelection < 0 || maintenanceSelection > 2)
         {
-            printf("Invalid choice. Please enter a number between 0 and 3.\n");
+            printf("Invalid choice. Please enter a number between 0 and 2.\n");
         }
         else
         {
             // Handle the selected maintenance option
             if (maintenanceSelection == 1)
             {
-                viewInventory(items, menuSize);
+                // Inventory submenu
+                int inventorySelection;
+                int exitInventory = 0;
+
+                while (exitInventory == 0)
+                {
+                    // Display inventory menu options
+                    printf(SEPARATOR
+                           "\nInventory Features\n"
+                           "1 - View Inventory\n"
+                           "2 - Set Item Price\n"
+                           "3 - Restock Item\n"
+                           "0 - Back to Maintenance Menu\n"
+                           "\nEnter your choice: ");
+
+                    scanResult = scanf("%d", &inventorySelection);
+
+                    while (scanResult != 1)  // If input is not valid, request valid input
+                    {
+                        printf("Invalid input. Please enter a number between 0 and 3.\n");
+                        // Clear the invalid input from the buffer
+                        while (getchar() != '\n');  // Consume invalid input
+                        scanResult = scanf("%d", &inventorySelection);
+                    }
+
+                    if (inventorySelection < 0 || inventorySelection > 3)
+                    {
+                        printf("Invalid choice. Please enter a number between 0 and 3.\n");
+                    }
+                    else
+                    {
+                        // Handle the selected inventory option
+                        if (inventorySelection == 1)
+                        {
+                            viewInventory(items, menuSize);
+                        }
+                        else if (inventorySelection == 2)
+                        {
+                            modifyPrice(items, menuSize);
+                        }
+                        else if (inventorySelection == 3)
+                        {
+                            restockInventory(items, menuSize);
+                        }
+                        else if (inventorySelection == 0)
+                        {
+                            exitInventory = 1;  // Exit to Maintenance Menu
+                        }
+                    }
+                }
             }
             else if (maintenanceSelection == 2)
             {
-                modifyPrice(items, menuSize);
-            }
-            else if (maintenanceSelection == 3)
-            {
-                restockInventory(items, menuSize);
+                // Cash register submenu
+                int cashRegisterSelection;
+                int exitCashRegister = 0;
+
+                while (exitCashRegister == 0)
+                {
+                    // Display cash register menu options
+                    printf(SEPARATOR
+                           "\nCash Register Features\n"
+                           "1 - View Cash Register\n"
+                           "2 - Restock Cash Register\n"
+                           "3 - Cash Out\n"
+                           "0 - Back to Maintenance Menu\n"
+                           "\nEnter your choice: ");
+
+                    scanResult = scanf("%d", &cashRegisterSelection);
+
+                    while (scanResult != 1)  // If input is not valid, request valid input
+                    {
+                        printf("Invalid input. Please enter a number between 0 and 3.\n");
+                        // Clear the invalid input from the buffer
+                        while (getchar() != '\n');  // Consume invalid input
+                        scanResult = scanf("%d", &cashRegisterSelection);
+                    }
+
+                    if (cashRegisterSelection < 0 || cashRegisterSelection > 3)
+                    {
+                        printf("Invalid choice. Please enter a number between 0 and 3.\n");
+                    }
+                    else
+                    {
+                        // Handle the selected cash register option
+                        if (cashRegisterSelection == 1)
+                        {
+                            viewCashRegister(cashRegister, cashRegisterSize);
+                        }
+                        else if (cashRegisterSelection == 2)
+                        {
+                            reStockRegister(cashRegister, cashRegisterSize);
+                        }
+                        else if (cashRegisterSelection == 3)
+                        {
+                            cashOut(cashRegister, cashRegisterSize);
+                        }
+                        else if (cashRegisterSelection == 0)
+                        {
+                            exitCashRegister = 1;  // Exit to Maintenance Menu
+                        }
+                    }
+                }
             }
             else if (maintenanceSelection == 0)
             {
-                exitMaintenance = 1;  // Set flag to exit the loop
+                exitMaintenance = 1;  // Exit maintenance menu
                 printf("Exiting Maintenance Menu...\n");
             }
         }
