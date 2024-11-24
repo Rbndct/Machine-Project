@@ -4,7 +4,7 @@
 
 #include "data_structures.h"  // Include your data structure definitions
 
-#define CSV_FILE "build/vending_items.csv"
+#define CSV_FILE "vending_items.csv"
 
 /**
  * @brief Saves the details of the vending items to a CSV file.
