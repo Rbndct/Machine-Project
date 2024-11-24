@@ -185,21 +185,17 @@ void selectItems(VendingItem items[], int menuSize, UserSelection *selection, fl
     // Add default items (rice and egg) if not already selected
     if (selection->count == 0)  // If no items have been selected yet
     {
-        int eggIndex = -1;   // Variable for egg index in the items array
-        int riceIndex = -1;  // Variable for rice index in the items array
-        int i;
+        int eggIndex, riceIndex, i;  // Declare variables for item indexes and loop counter
+        eggIndex = -1;               // Initialize to indicate "not found"
+        riceIndex = -1;              // Initialize to indicate "not found"
 
         // Find the indexes of egg and rice in the menu
         for (i = 0; i < menuSize; i++)  // Iterate through the items array to find default items
         {
-            // Compare the name of the current item with "Egg"
-            // strcmp returns 0 if the strings are equal
             if (strcmp(items[i].name, "Egg") == 0)
             {
                 eggIndex = i;  // Store the index of the "Egg" item
             }
-            // Compare the name of the current item with "Rice"
-            // strcmp returns 0 if the strings are equal
             else if (strcmp(items[i].name, "Rice") == 0)
             {
                 riceIndex = i;  // Store the index of the "Rice" item
@@ -220,16 +216,17 @@ void selectItems(VendingItem items[], int menuSize, UserSelection *selection, fl
         }
     }
 
-    int done = 0;  // Initialize done to 0 (false)
+    int done;                    // Declare control variable for the loop
+    int additionalItemSelected;  // Declare flag for additional item selection
+    done = 0;                    // Initialize loop control variable
+    additionalItemSelected = 0;  // Initialize flag to track if an additional item was selected
 
     while (!done)  // Loop until the user finalizes their selection
     {
-        int selectionIndex;  // Declare variable to store the user's item selection
+        int selectionIndex, scanfResult;  // Declare variables for user input and validation result
 
         printf("\nEnter item number to order (1-%d).\nEnter 0 when done: ", menuSize);
-
-        int scanfResult;  // Declare variable to store the result of scanf
-        scanfResult = scanf("%d", &selectionIndex);  // Validate input for item number
+        scanfResult = scanf("%d", &selectionIndex);  // Read user input and store validation result
 
         if (scanfResult != 1)  // Check if the input is not a valid integer
         {
@@ -240,19 +237,21 @@ void selectItems(VendingItem items[], int menuSize, UserSelection *selection, fl
         {
             if (selectionIndex == 0)
             {
-                if (selection->count > 0)
+                if (additionalItemSelected)
                 {
-                    done = 1;  // Exit loop if at least one item was selected
+                    done = 1;  // Exit loop if at least one additional item was selected
                 }
                 else
                 {
-                    printf("You must select at least one item before finalizing your order.\n");
+                    printf(
+                        "You must select at least one add-on item before finalizing your order.\n");
                 }
             }
             else if (selectionIndex >= 1 && selectionIndex <= menuSize)
             {
                 processSelection(items, selectionIndex - 1, selection, userMoney, cashRegister,
                                  cashRegisterSize);
+                additionalItemSelected = 1;  // Mark that an additional item has been selected
             }
             else
             {

@@ -44,7 +44,7 @@ int main()
                            {7, "Rice", 15.00, 10},  {8, "Egg", 8.00, 10}};
 
     // Initialize the cash register with denominations and their counts
-    CashRegister cash[] = {{500, 10}, {100, 10}, {50, 10},   {20, 10},   {10, 10},
+    CashRegister cash[] = {{500, 10}, {200, 10}, {100, 10},  {50, 10},   {20, 10},  {10, 10},
                            {5, 10},   {1, 10},   {0.25, 10}, {0.10, 10}, {0.05, 10}};
 
     float userMoney = 0.0f;  // Track the total money inserted by the user during transactions
@@ -53,7 +53,7 @@ int main()
     UserSelection selection = {{{0}}, {0}, {0.0}, 0, 0.0};
 
     // Define additional parameters for the program
-    int registerSize = 10;             // Number of cash register denominations
+    int registerSize = 11;             // Number of cash register denominations
     int menuSize = 8;                  // Number of vending machine items
     int userMenuSelection = 0;         // Stores the user's menu selection
     int confirmation = 0;              // Tracks if a transaction is confirmed (1 for yes, 0 for no)
