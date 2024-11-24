@@ -8,9 +8,13 @@
 #include "vending_machine.h"
 
 /**
- * @brief Displays the main menu and handles user selection.
+ * @brief Displays the main menu for the vending machine and captures user input.
+
  * @param userMenuSelection A pointer to an integer where the user's menu selection will be stored.
- * @return The selected menu option as an integer.
+ * @return The selected menu option as an integer:
+ *         - 1 for "Vending Machine"
+ *         - 2 for "Staff Maintenance"
+ *         - 3 for "Shutdown Machine"
  */
 int handleMenuSelection(int userMenuSelection)
 {
@@ -19,70 +23,73 @@ int handleMenuSelection(int userMenuSelection)
     printf("2 - Staff Maintenance\n");
     printf("3 - Shutdown Machine\n");
 
-    // Prompt the user for input and store it in userMenuSelection
-    scanf("%d", &userMenuSelection);
+    // Prompt the user for input
+    printf("Please enter your choice: ");
+    int scanResult = scanf("%d", &userMenuSelection);
+
+    // Validate user input
+    if (scanResult != 1)
+    {
+        printf("Invalid input. Please enter a number corresponding to the menu options.\n");
+        userMenuSelection = -1;  // Assign a default invalid value
+    }
 
     return userMenuSelection;  // Return the user's selection
 }
 
 /**
- * @brief Handles the purchase flow in the vending machine.
- * @param availableItems Array of VendingItem structures representing the items available in the
- * vending machine.
- * @param itemCount Size of the availableItems array.
- * @param insertedMoney Pointer to a float representing the user's money available for purchase.
- * @param cashRegister Array of CashRegister structures representing the available denominations in
- * the machine.
- * @param cashRegisterSize Size of the cashRegister array.
- * @param currentSelection Pointer to a UserSelection structure where user's selections will be
- * stored.
- * @param orderConfirmation Pointer to an integer to indicate whether the transaction is confirmed
- * (1 for yes, 0 for no).
+ * @brief Handles the complete purchase process in the vending machine.
+
+ * @param availableItems Array of VendingItem structures representing the items.
+ * @param itemCount The number of items in the availableItems array.
+ * @param insertedMoney Pointer to a float representing the user's total money available.
+ * @param cashRegister Array of CashRegister structures representing the available denominations.
+ * @param cashRegisterSize The number of denominations in the cashRegister array.
+ * @param userSelection Pointer to a UserSelection structure to store the user's selection.
+ * @param orderConfirmation Pointer to an integer indicates if transaction is confirmed.
+ * @pre The arrays availableItems and cashRegister must be initialized and contain valid data.
  */
 void processPurchase(VendingItem availableItems[], int itemCount, float *insertedMoney,
                      CashRegister cashRegister[], int cashRegisterSize,
                      UserSelection *userSelection, int *orderConfirmation)
 {
-    int continueVending;
-    continueVending = 1;  // Variable to control the loop (1 for yes, 0 for no)
+    int continueVending = 1;  // Control flag for repeating the vending process
 
     do
     {
-        // Display the items available for purchase
+        // Display available items in the vending machine
         displayItems(availableItems, itemCount);
 
-        // Prompt the user to input their money
+        // Prompt the user to input money
         userMoneyInput(insertedMoney, cashRegister, cashRegisterSize);
 
-        // Allow the user to select items they wish to purchase
+        // Allow the user to select items and adjust total money and stock accordingly
         selectItems(availableItems, itemCount, userSelection, insertedMoney, cashRegister,
                     cashRegisterSize);
 
-        // Calculate the change based on user's money and total item cost
+        // Calculate change and confirm the transaction
         getChange(cashRegister, insertedMoney, cashRegisterSize, &userSelection->totalItemCost,
                   orderConfirmation);
 
-        // If the transaction is confirmed by the user
         if (*orderConfirmation)
         {
-            // Reset the order details after completing the transaction
+            // Complete the transaction by finalizing the order
             resetOrderAfterConfirm(userSelection, insertedMoney);
-
-            printf("\nTransaction completed.\n" SEPARATOR);
+            printf("\nTransaction completed successfully.\n" SEPARATOR);
         }
         else
         {
-            // If the user cancels the order, reset the order (return stock, refund money)
+            // Cancel the transaction, returning stock and refunding money
             resetOrderAfterCancel(userSelection, insertedMoney, availableItems, itemCount);
-
             printf("\nOrder has been canceled.\n");
         }
 
-        // Ask if the user wants to start the vending process again
+        // Prompt the user to restart or exit the vending process
         int scanResult;
         printf("\nStart Vending Again?\n1. Yes\n0. Return to Main Menu: ");
-
         scanResult = scanf("%d", &continueVending);
+
+        // Validate user input for restarting or exiting
         while (scanResult != 1 || (continueVending != 1 && continueVending != 0))
         {
             while (getchar() != '\n');  // Clear invalid input from the buffer
@@ -91,7 +98,7 @@ void processPurchase(VendingItem availableItems[], int itemCount, float *inserte
             scanResult = scanf("%d", &continueVending);
         }
 
-    } while (continueVending == 1);  // Continue the loop if the user selects 1 (Yes)
+    } while (continueVending == 1);  // Loop if the user chooses to continue vending
 
     if (continueVending == 0)
     {
@@ -100,15 +107,18 @@ void processPurchase(VendingItem availableItems[], int itemCount, float *inserte
 }
 
 /**
- * @brief Display maintenance options and handle the user's selection.
+ * @brief Displays the maintenance menu, allowing the user to manage inventory and cash register.
  * @param items Array of VendingItem structures representing the inventory.
- * @param menuSize Number of items in the inventory.
+ * @param menuSize The number of items in the inventory array.
+ * @param cashRegister Array of CashRegister structures representing the available denominations.
+ * @param cashRegisterSize The number of denominations in the cashRegister array.
+ * @pre The arrays items and cashRegister must be initialized and contain valid data.
  */
 void handleMaintenanceOptions(VendingItem items[], int menuSize, CashRegister cashRegister[],
                               int cashRegisterSize)
 {
     int maintenanceSelection;
-    int exitMaintenance = 0;  // Flag to check if user wants to exit the maintenance menu
+    int exitMaintenance = 0;  // Control flag for exiting the maintenance menu
 
     while (exitMaintenance == 0)  // Continue showing the menu until the user decides to exit
     {
@@ -123,11 +133,11 @@ void handleMaintenanceOptions(VendingItem items[], int menuSize, CashRegister ca
         int scanResult;
         scanResult = scanf("%d", &maintenanceSelection);
 
-        while (scanResult != 1)  // If input is not valid, request valid input
+        // Validate menu selection input
+        while (scanResult != 1)
         {
             printf("Invalid input. Please enter a number between 0 and 2.\n");
-            // Clear the invalid input from the buffer
-            while (getchar() != '\n');  // Consume invalid input
+            while (getchar() != '\n');  // Clear invalid input
             scanResult = scanf("%d", &maintenanceSelection);
         }
 
@@ -137,117 +147,116 @@ void handleMaintenanceOptions(VendingItem items[], int menuSize, CashRegister ca
         }
         else
         {
-            // Handle the selected maintenance option
-            if (maintenanceSelection == 1)
+            switch (maintenanceSelection)
             {
-                // Inventory submenu
-                int inventorySelection;
-                int exitInventory = 0;
-
-                while (exitInventory == 0)
+                case 1:  // Inventory Features
                 {
-                    // Display inventory menu options
-                    printf(SEPARATOR
-                           "\nInventory Features\n"
-                           "1 - View Inventory\n"
-                           "2 - Set Item Price\n"
-                           "3 - Restock Item\n"
-                           "0 - Back to Maintenance Menu\n"
-                           "\nEnter your choice: ");
+                    int inventorySelection;
+                    int exitInventory = 0;
 
-                    scanResult = scanf("%d", &inventorySelection);
-
-                    while (scanResult != 1)  // If input is not valid, request valid input
+                    while (exitInventory == 0)
                     {
-                        printf("Invalid input. Please enter a number between 0 and 3.\n");
-                        // Clear the invalid input from the buffer
-                        while (getchar() != '\n');  // Consume invalid input
+                        // Display inventory menu options
+                        printf(SEPARATOR
+                               "\nInventory Features\n"
+                               "1 - View Inventory\n"
+                               "2 - Set Item Price\n"
+                               "3 - Restock Item\n"
+                               "0 - Back to Maintenance Menu\n"
+                               "\nEnter your choice: ");
+
                         scanResult = scanf("%d", &inventorySelection);
-                    }
 
-                    if (inventorySelection < 0 || inventorySelection > 3)
-                    {
-                        printf("Invalid choice. Please enter a number between 0 and 3.\n");
+                        // Validate inventory menu selection input
+                        while (scanResult != 1)
+                        {
+                            printf("Invalid input. Please enter a number between 0 and 3.\n");
+                            while (getchar() != '\n');  // Clear invalid input
+                            scanResult = scanf("%d", &inventorySelection);
+                        }
+
+                        if (inventorySelection < 0 || inventorySelection > 3)
+                        {
+                            printf("Invalid choice. Please enter a number between 0 and 3.\n");
+                        }
+                        else
+                        {
+                            switch (inventorySelection)
+                            {
+                                case 1:
+                                    viewInventory(items, menuSize);  // Display inventory
+                                    break;
+                                case 2:
+                                    modifyPrice(items, menuSize);  // Modify item prices
+                                    break;
+                                case 3:
+                                    restockInventory(items, menuSize);  // Restock inventory
+                                    break;
+                                case 0:
+                                    exitInventory = 1;  // Exit inventory submenu
+                                    break;
+                            }
+                        }
                     }
-                    else
-                    {
-                        // Handle the selected inventory option
-                        if (inventorySelection == 1)
-                        {
-                            viewInventory(items, menuSize);
-                        }
-                        else if (inventorySelection == 2)
-                        {
-                            modifyPrice(items, menuSize);
-                        }
-                        else if (inventorySelection == 3)
-                        {
-                            restockInventory(items, menuSize);
-                        }
-                        else if (inventorySelection == 0)
-                        {
-                            exitInventory = 1;  // Exit to Maintenance Menu
-                        }
-                    }
+                    break;
                 }
-            }
-            else if (maintenanceSelection == 2)
-            {
-                // Cash register submenu
-                int cashRegisterSelection;
-                int exitCashRegister = 0;
-
-                while (exitCashRegister == 0)
+                case 2:  // Cash Register Features
                 {
-                    // Display cash register menu options
-                    printf(SEPARATOR
-                           "\nCash Register Features\n"
-                           "1 - View Cash Register\n"
-                           "2 - Restock Cash Register\n"
-                           "3 - Cash Out\n"
-                           "0 - Back to Maintenance Menu\n"
-                           "\nEnter your choice: ");
+                    int cashRegisterSelection;
+                    int exitCashRegister = 0;
 
-                    scanResult = scanf("%d", &cashRegisterSelection);
-
-                    while (scanResult != 1)  // If input is not valid, request valid input
+                    while (exitCashRegister == 0)
                     {
-                        printf("Invalid input. Please enter a number between 0 and 3.\n");
-                        // Clear the invalid input from the buffer
-                        while (getchar() != '\n');  // Consume invalid input
+                        // Display cash register menu options
+                        printf(SEPARATOR
+                               "\nCash Register Features\n"
+                               "1 - View Cash Register\n"
+                               "2 - Restock Cash Register\n"
+                               "3 - Cash Out\n"
+                               "0 - Back to Maintenance Menu\n"
+                               "\nEnter your choice: ");
+
                         scanResult = scanf("%d", &cashRegisterSelection);
-                    }
 
-                    if (cashRegisterSelection < 0 || cashRegisterSelection > 3)
-                    {
-                        printf("Invalid choice. Please enter a number between 0 and 3.\n");
+                        // Validate cash register menu selection input
+                        while (scanResult != 1)
+                        {
+                            printf("Invalid input. Please enter a number between 0 and 3.\n");
+                            while (getchar() != '\n');  // Clear invalid input
+                            scanResult = scanf("%d", &cashRegisterSelection);
+                        }
+
+                        if (cashRegisterSelection < 0 || cashRegisterSelection > 3)
+                        {
+                            printf("Invalid choice. Please enter a number between 0 and 3.\n");
+                        }
+                        else
+                        {
+                            switch (cashRegisterSelection)
+                            {
+                                case 1:
+                                    viewCashRegister(cashRegister,
+                                                     cashRegisterSize);  // View denominations
+                                    break;
+                                case 2:
+                                    reStockRegister(cashRegister,
+                                                    cashRegisterSize);  // Restock cash register
+                                    break;
+                                case 3:
+                                    cashOut(cashRegister, cashRegisterSize);  // Perform cash out
+                                    break;
+                                case 0:
+                                    exitCashRegister = 1;  // Exit cash register submenu
+                                    break;
+                            }
+                        }
                     }
-                    else
-                    {
-                        // Handle the selected cash register option
-                        if (cashRegisterSelection == 1)
-                        {
-                            viewCashRegister(cashRegister, cashRegisterSize);
-                        }
-                        else if (cashRegisterSelection == 2)
-                        {
-                            reStockRegister(cashRegister, cashRegisterSize);
-                        }
-                        else if (cashRegisterSelection == 3)
-                        {
-                            cashOut(cashRegister, cashRegisterSize);
-                        }
-                        else if (cashRegisterSelection == 0)
-                        {
-                            exitCashRegister = 1;  // Exit to Maintenance Menu
-                        }
-                    }
+                    break;
                 }
-            }
-            else if (maintenanceSelection == 0)
-            {
-                exitMaintenance = 1;  // Exit maintenance menu
-                printf("Exiting Maintenance Menu...\n");
+                case 0:  // Exit Maintenance Menu
+                    exitMaintenance = 1;
+                    printf("Exiting Maintenance Menu...\n");
+                    break;
             }
         }
     }
