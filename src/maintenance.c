@@ -301,32 +301,36 @@ void viewCashRegister(CashRegister cashRegister[], int cashRegisterSize)
 }
 
 /**
- * @brief Allows the user to restock the cash register by adding quantities to valid denominations.
- * @param cashRegister Array of CashRegister structures representing the current cash register.
- * @param cashRegisterSize Number of entries in the cashRegister array
- * @pre cashRegister must be a valid array of CashRegister, the cashDenomination values in each
- * structure must be unique and valid amounts.
+ * @brief Handles the process of restocking a cash register with a specific denomination and
+ * quantity.
+ * @param cashRegister An array of CashRegister structures, each representing a denomination
+ *                     and the available quantity in the cash register.
+ * @param cashRegisterSize The size of the cashRegister array, representing the number of
+ *                         different denominations available in the register.
+ * @pre The cashRegister array should be populated with valid denominations and quantities.
  */
 void reStockRegister(CashRegister cashRegister[], int cashRegisterSize)
 {
     float denomination;         // Denomination to restock
     int quantity;               // Quantity to add to the denomination
     int validDenomination = 0;  // Flag to check if the entered denomination is valid
+    int validQuantity = 0;      // Flag to check if the entered quantity is valid
     int scanResult;             // Result of scanf for denomination
     int i;                      // Loop variable for searching through cash register
     int quantityScanResult;     // Result of scanf for quantity input
 
-    // Display the current cash register contents
+    // Display the current cash register contents to the user
     viewCashRegister(cashRegister, cashRegisterSize);
 
     // Loop until a valid denomination and valid quantity are provided
+    validDenomination = 0;  // Reset the flag at the beginning
     while (validDenomination == 0)
     {
         // Prompt the user to enter the denomination to restock
         printf("\nEnter the denomination to restock: ");
         scanResult = scanf("%f", &denomination);
 
-        // Check if the input is a valid float
+        // Check if the input is a valid float for the denomination
         if (scanResult != 1)
         {
             printf("Invalid input. Please enter a valid denomination.\n");
@@ -343,28 +347,35 @@ void reStockRegister(CashRegister cashRegister[], int cashRegisterSize)
                 {
                     validDenomination = 1;  // Denomination found
 
-                    // Prompt the user to enter the quantity to add
-                    printf("Enter the quantity to add (positive number only): ");
-                    quantityScanResult = scanf("%d", &quantity);
+                    // Reset validQuantity flag and loop to get valid quantity input
+                    validQuantity = 0;
+                    while (validQuantity == 0)
+                    {
+                        // Prompt the user to enter the quantity to add
+                        printf("Enter the quantity to add (positive number only): ");
+                        quantityScanResult = scanf("%d", &quantity);
 
-                    // Validate the quantity input
-                    if (quantityScanResult != 1 || quantity <= 0)
-                    {
-                        printf(
-                            "Invalid quantity. Please enter a positive number greater than "
-                            "zero.\n");
-                        while (getchar() != '\n');  // Clear the input buffer
-                    }
-                    else
-                    {
-                        // Update the cash register with the new quantity
-                        cashRegister[i].amountLeft += quantity;
-                        printf("Successfully added %d to %.2f PHP denomination.\n", quantity,
-                               cashRegister[i].cashDenomination);
+                        // Validate the quantity input
+                        if (quantityScanResult != 1 || quantity <= 0)
+                        {
+                            printf(
+                                "Invalid quantity. Please enter a positive number greater than "
+                                "zero.\n");
+                            while (getchar() != '\n');  // Clear the input buffer
+                        }
+                        else
+                        {
+                            // Update the cash register with the new quantity
+                            cashRegister[i].amountLeft += quantity;
+                            printf("Successfully added %d to %.2f PHP denomination.\n", quantity,
+                                   cashRegister[i].cashDenomination);
+                            validQuantity = 1;  // Mark quantity as valid
+                        }
                     }
                 }
-                // If the denomination is not found in the cash register, display an error
             }
+
+            // If the denomination was not found in the register, prompt the user again
             if (validDenomination == 0)
             {
                 printf(
@@ -534,16 +545,17 @@ void handleAmountBasedCashOut(CashRegister cashRegister[], int cashRegisterSize)
 
         // Display the total amount dispensed
         printf(SEPARATOR "\n");
-        printf("Transaction Completed. Amount Dispensed: PhP%.2f\n", amountToClaim);
+        printf("Transaction Completed. Amount Dispensed: PhP %.2f\n", amountToClaim);
     }
 }
 
 /**
- * @brief Handles cash-out based on denomination and quantity.
- * @param cashRegister Array of CashRegister structures representing the current cash register.
- * @param cashRegisterSize Number of entries in the cashRegister array.
- * @pre cashRegister must be properly initialized with valid denominations and non-negative
- * quantities.
+ * @brief Handles the process of cash-out based on the selected denomination and quantity.
+ * @param cashRegister An array of CashRegister structure representing the cash register.
+ *                     Each structure contains a specific denomination and the available quantity.
+ * @param cashRegisterSize The size of the cashRegister array, representing the number of
+ *                         different denominations available in the register.
+ * @pre The cashRegister array should be populated with valid denominations and quantities.
  */
 void handleQuantityBasedCashOut(CashRegister cashRegister[], int cashRegisterSize)
 {
@@ -554,65 +566,77 @@ void handleQuantityBasedCashOut(CashRegister cashRegister[], int cashRegisterSiz
     int sufficientQuantity = 0;  // Flag to check if sufficient quantity is available
     int i;                       // Loop variable
 
-    // Prompt the user for the denomination
-    printf("\nEnter the denomination you wish to claim: ");
-    scanResult = scanf("%f", &denomination);
-
-    // Check for invalid input
-    if (scanResult != 1)
+    // Loop to ensure the user enters a valid denomination
+    while (!validDenomination)
     {
-        printf("Invalid input. Operation canceled.\n");
-    }
+        // Prompt the user for the denomination
+        printf("\nEnter the denomination you wish to claim: ");
+        scanResult = scanf("%f", &denomination);
 
-    // Search for the entered denomination in the cash register
-    i = 0;
-    while (i < cashRegisterSize && validDenomination == 0)
-    {
-        if (cashRegister[i].cashDenomination == denomination)
+        // Check for invalid input
+        if (scanResult != 1)
         {
-            validDenomination = 1;  // Denomination found
-
-            // Prompt the user for the quantity to claim
-            printf("Enter the quantity you wish to claim: ");
-            scanResult = scanf("%d", &quantity);
-
-            // Validate the quantity input
-            if (scanResult != 1 || quantity <= 0)
+            printf("Invalid input. Please enter a valid denomination.\n");
+            while (getchar() != '\n');  // Clear the input buffer
+        }
+        else
+        {
+            // Search for the entered denomination in the cash register
+            i = 0;
+            while (i < cashRegisterSize && validDenomination == 0)
             {
-                printf("Invalid quantity. Operation canceled.\n");
+                // If the denomination exists in the register
+                if (cashRegister[i].cashDenomination == denomination)
+                {
+                    validDenomination = 1;  // Denomination found
+
+                    // Loop for valid quantity input
+                    while (!sufficientQuantity)
+                    {
+                        // Prompt the user for the quantity to claim
+                        printf("Enter the quantity you wish to claim: ");
+                        scanResult = scanf("%d", &quantity);
+
+                        // Validate the quantity input
+                        if (scanResult != 1 || quantity <= 0)
+                        {
+                            printf("Invalid quantity. Please enter a positive number.\n");
+                            while (getchar() != '\n');  // Clear the input buffer
+                        }
+                        else
+                        {
+                            // Check if sufficient quantity is available
+                            if (quantity <= cashRegister[i].amountLeft)
+                            {
+                                sufficientQuantity = 1;  // Sufficient quantity available
+
+                                // Perform the cash-out operation
+                                cashRegister[i].amountLeft -=
+                                    quantity;  // Deduct quantity from the register
+                                printf("Successfully dispensed %d - PhP%.2f\n", quantity,
+                                       denomination);
+                                printf("Remaining quantity of PhP%.2f: %d\n", denomination,
+                                       cashRegister[i].amountLeft);
+                            }
+                            else
+                            {
+                                // Insufficient quantity
+                                printf("Insufficient quantity for PhP%.2f. Only %d remaining.\n",
+                                       denomination, cashRegister[i].amountLeft);
+                            }
+                        }
+                    }
+                }
+                i++;  // Move to the next denomination in the register
             }
 
-            // Check if sufficient quantity is available
-            if (quantity <= cashRegister[i].amountLeft)
+            // If no valid denomination was found
+            if (validDenomination == 0)
             {
-                sufficientQuantity = 1;  // Sufficient quantity available
-
-                // Perform the cash-out operation
-                cashRegister[i].amountLeft -= quantity;  // Deduct quantity from the register
-                printf("Successfully dispensed %d - PhP%.2f\n", quantity, denomination);
-                printf("Remaining quantity of PhP%.2f: %d\n", denomination,
-                       cashRegister[i].amountLeft);
-            }
-            else
-            {
-                // Insufficient quantity
-                printf("Insufficient quantity for PhP%.2f. Only %d remaining.\n", denomination,
-                       cashRegister[i].amountLeft);
+                printf(
+                    "Invalid denomination. Please choose a valid denomination from the cash "
+                    "register.\n");
             }
         }
-        i++;  // Move to the next denomination in the register
-    }
-
-    // If no valid denomination was found
-    if (validDenomination == 0)
-    {
-        printf(
-            "Invalid denomination. Please choose a valid denomination from the cash register.\n");
-    }
-
-    // If the denomination is valid but quantity is insufficient
-    if (validDenomination == 1 && sufficientQuantity == 0 && scanResult == 1 && quantity > 0)
-    {
-        printf("Operation canceled due to insufficient quantity.\n");
     }
 }
