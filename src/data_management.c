@@ -21,7 +21,6 @@ void saveItemsToCSV(VendingItem items[], int menuSize)
     if (file == NULL)
     {
         perror("Error opening file for writing");
-        return;
     }
 
     // Write the CSV header with column names
