@@ -29,10 +29,10 @@
 int main()
 {
     // Define items in the vending machine with item numbers, names, prices, and stock counts
-    VendingItem items[] = {{1, "Hotdog", 9.50, 5}, {2, "Longganisa", 20.75, 3},
-                           {3, "Bacon", 12.00, 2}, {4, "Sausage", 35.00, 1},
-                           {5, "Tapa", 22.50, 0},  {6, "Tocino", 18.00, 6},
-                           {7, "Rice", 15.00, 8},  {8, "Egg", 8.00, 10}};
+    VendingItem items[] = {{1, "Hotdog", 9.50, 5}, {2, "Longganisa", 20.75, 5},
+                           {3, "Bacon", 12.00, 5}, {4, "Sausage", 35.00, 5},
+                           {5, "Tapa", 22.50, 5},  {6, "Tocino", 18.00, 5},
+                           {7, "Rice", 15.00, 10}, {8, "Egg", 8.00, 10}};
 
     // Define available cash denominations in the register
     CashRegister cash[] = {{500, 10}, {100, 10}, {50, 10},   {20, 10},   {10, 10},
@@ -61,7 +61,7 @@ int main()
             case 2:  // Maintenance options
                 if (maintenanceValidation(&maintenancePassword))
                 {
-                    handleMaintenanceOptions(items, menuSize);
+                    handleMaintenanceOptions(items, menuSize, cash, registerSize);
                 }
                 else
                 {
