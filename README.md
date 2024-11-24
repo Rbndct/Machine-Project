@@ -48,14 +48,11 @@ This project simulates a vending machine that allows users to:
     ```bash
     make
     ```
+   Alternatively, you can compile the program manually using the following command:
+    ```bash
+    gcc -Wall -std=c99 -I include src/main.c -o build/program
+    ```
 4. Run the executable:
     ```bash
     ./program
     ```
-
-## Acknowledgements
-This project was developed with the help of the following resources:
-- [W3Schools C Programming](https://www.w3schools.com/c/c_intro.php)
-- [Programiz C Programming](https://www.programiz.com/c-programming)
-- [Devdocs.io](https://devdocs.io/c/)
-- Lessons and videos from my Grade 12 Data Structures class at iACADEMY, provided by Sir Wilson Tiu.
