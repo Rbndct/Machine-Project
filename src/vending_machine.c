@@ -117,7 +117,6 @@ void updateCashRegister(CashRegister cashRegister[], int registerSize, float den
 void userMoneyInput(float *userMoney, CashRegister cashRegister[], int registerSize)
 {
     float moneyInserted;  // Variable to store the user's inserted amount
-    moneyInserted = -1;   // Initialize moneyInserted with a default value of -1
 
     // Display available denominations to the user
     printf(
@@ -126,6 +125,7 @@ void userMoneyInput(float *userMoney, CashRegister cashRegister[], int registerS
         "Bills: 20, 50, 100, 200, 500 (PHP)\n"
         "Coins: 1, 5, 10 (PHP), 0.25, 0.10, 0.05 (Cents)\n" SEPARATOR);
 
+    moneyInserted = -1;         // Initialize moneyInserted with a default value of -1
     while (moneyInserted != 0)  // Loop until the user inputs 0
     {
         // Prompt user for cash denomination input
@@ -181,8 +181,44 @@ void userMoneyInput(float *userMoney, CashRegister cashRegister[], int registerS
 void selectItems(VendingItem items[], int menuSize, UserSelection *selection, float *userMoney,
                  CashRegister cashRegister[], int cashRegisterSize)
 {
-    int done;  // Declare variable to track when the user is finished selecting items
-    done = 0;  // Initialize done to 0 (false)
+    // Add default items (rice and egg) if not already selected
+    if (selection->count == 0)  // If no items have been selected yet
+    {
+        int eggIndex = -1;   // Variable for egg index in the items array
+        int riceIndex = -1;  // Variable for rice index in the items array
+        int i;
+        // Find the indexes of egg and rice
+        for (i = 0; i < menuSize; i++)  // Iterate through the items array to find default items
+        {
+            // Compare the name of the current item with "Egg"
+            // strcmp returns 0 if the strings are equal
+            if (strcmp(items[i].name, "Egg") == 0)
+            {
+                eggIndex = i;  // Store the index of the "Egg" item
+            }
+            // Compare the name of the current item with "Rice"
+            // strcmp returns 0 if the strings are equal
+            else if (strcmp(items[i].name, "Rice") == 0)
+            {
+                riceIndex = i;  // Store the index of the "Rice" item
+            }
+        }
+
+        // Automatically add 1 egg and 1 rice to the selection
+        if (eggIndex != -1 && riceIndex != -1)  // Ensure both are available
+        {
+            printf("\nYour meal includes 1 Egg and 1 Rice by default.\n");
+            processSelection(items, eggIndex, selection, userMoney, cashRegister, cashRegisterSize);
+            processSelection(items, riceIndex, selection, userMoney, cashRegister,
+                             cashRegisterSize);
+        }
+        else
+        {
+            printf("Error: Default items (Egg and/or Rice) are missing from inventory.\n");
+        }
+    }
+
+    int done = 0;  // Initialize done to 0 (false)
 
     while (!done)  // Loop until the user finalizes their selection
     {
@@ -201,35 +237,23 @@ void selectItems(VendingItem items[], int menuSize, UserSelection *selection, fl
 
         if (selectionIndex == 0)
         {
-            int hasSelectedItems;  // Declare variable to track if items are selected
-            hasSelectedItems = (selection->count > 0);  // Check if at least one item is selected
-
-            if (hasSelectedItems)
+            if (selection->count > 0)
             {
-                done = 1;  // Set done to true to exit the loop
+                done = 1;  // Exit loop
             }
             else
             {
-                printf(
-                    "You must select at least one item before finalizing your "
-                    "order.\n");
+                printf("You must select at least one item before finalizing your order.\n");
             }
+        }
+        else if (selectionIndex >= 1 && selectionIndex <= menuSize)
+        {
+            processSelection(items, selectionIndex - 1, selection, userMoney, cashRegister,
+                             cashRegisterSize);
         }
         else
         {
-            int isValidSelection;  // Declare variable for item selection validation
-            isValidSelection =
-                (selectionIndex >= 1 && selectionIndex <= menuSize);  // Validate selection index
-
-            if (isValidSelection)
-            {
-                processSelection(items, selectionIndex - 1, selection, userMoney, cashRegister,
-                                 cashRegisterSize);
-            }
-            else
-            {
-                printf("Invalid item number! Please try again.\n");  // Handle invalid item numbers
-            }
+            printf("Invalid item number! Please try again.\n");
         }
     }
 
@@ -248,18 +272,18 @@ void selectItems(VendingItem items[], int menuSize, UserSelection *selection, fl
 void processSelection(VendingItem items[], int index, UserSelection *selection, float *userMoney,
                       CashRegister cashRegister[], int registerSize)
 {
+    int hasStock;  // Declare variable to check stock availability
+
     VendingItem *selectedItem;     // Declare pointer to the selected item
     selectedItem = &items[index];  // Initialize pointer to point to the selected item
 
-    int hasStock;                          // Declare variable to check stock availability
     hasStock = (selectedItem->stock > 0);  // Check if the selected item is in stock
-
-    if (hasStock)  // If the item is in stock
+    if (hasStock)                          // If the item is in stock
     {
-        float totalCost;  // Declare variable to store the total cost for selection
-        totalCost = selection->totalItemCost + selectedItem->price;  // Calculate the total cost
-
+        float totalCost;     // Declare variable to store the total cost for selection
         int hasEnoughMoney;  // Declare variable to check if the user has enough money
+
+        totalCost = selection->totalItemCost + selectedItem->price;  // Calculate the total cost
         hasEnoughMoney = (*userMoney >= totalCost);  // Check if the user has enough money
 
         if (hasEnoughMoney)  // If the user has enough money
@@ -275,6 +299,9 @@ void processSelection(VendingItem items[], int index, UserSelection *selection, 
         else  // If the user does not have enough money
         {
             float moneyRequired;  // Declare variable to store how much more money is required
+            int userChoice;       // Declare variable to store user's choice
+            int scanfResult;      // Declare variable to store the result of scanf
+
             moneyRequired = totalCost - *userMoney;  // Calculate the money required
 
             // Notify the user of insufficient funds and provide options
@@ -282,10 +309,7 @@ void processSelection(VendingItem items[], int index, UserSelection *selection, 
                    selectedItem->name);
             printf("Would you like to: \n1. Insert more money\n2. Cancel the selection\n");
 
-            int userChoice;  // Declare variable to store user's choice
-            userChoice = 0;  // Initialize choice to 0
-
-            int scanfResult;  // Declare variable to store the result of scanf
+            userChoice = 0;                          // Initialize choice to 0
             scanfResult = scanf("%d", &userChoice);  // Validate user input
 
             while (scanfResult != 1 || (userChoice != 1 && userChoice != 2))
@@ -324,9 +348,10 @@ void processSelection(VendingItem items[], int index, UserSelection *selection, 
 void updateSelectedItems(UserSelection *selection, VendingItem *selectedItem)
 {
     int existingIndex;   // Declare variable to track if the item is already selected
-    existingIndex = -1;  // Initialize the index for tracking existing items
+    int i;               // Declare index variable for the loop
+    int isItemExisting;  // Declare variable to check if the item exists in the selection
 
-    int i;  // Declare index variable for the loop
+    existingIndex = -1;  // Initialize the index for tracking existing items
 
     // Check if the selected item is already in the user's selection
     for (i = 0; i < selection->count; i++)
@@ -341,7 +366,6 @@ void updateSelectedItems(UserSelection *selection, VendingItem *selectedItem)
         }
     }
 
-    int isItemExisting;  // Declare variable to check if the item exists in the selection
     isItemExisting = (existingIndex != -1);  // Check if the item already exists in the selection
 
     if (isItemExisting)  // If the item is already selected
@@ -371,11 +395,12 @@ void updateSelectedItems(UserSelection *selection, VendingItem *selectedItem)
  */
 void printSelectedItems(UserSelection *selection)
 {
+    int count;  // Declare variable to track the count of selected items
+
     printf("\nYou have selected:\n");
     printf("%-15s | %-10s | %-10s\n", "Item Name", "Quantity", "Total Cost");
     printf(SEPARATOR "\n");
 
-    int count;                 // Declare variable to track the count of selected items
     count = selection->count;  // Initialize the count variable with the number of selected items
 
     // Check if there are any selected items
@@ -421,11 +446,13 @@ void getChange(CashRegister cash[], float *userMoney, int registerSize, float *t
     // Prompt the user for order confirmation
     printf("Order Confirmation (1 - Confirm / 0 - Cancel Order): ");
 
-    // Declare variable for order confirmation input
+    // Declare variable for order confirmation input & user input
     int confirmationInput;
+    int scanResult;
+    float userChange;
 
     // Perform the scanf operation first
-    int scanResult = scanf("%d", &confirmationInput);
+    scanResult = scanf("%d", &confirmationInput);
 
     // Loop if the input is not valid
     while (scanResult != 1)
@@ -440,7 +467,7 @@ void getChange(CashRegister cash[], float *userMoney, int registerSize, float *t
 
     *confirmation = confirmationInput;  // Assign the validated input to confirmation pointer
 
-    float userChange = 0.0f;  // Declare variable to hold the calculated change
+    userChange = 0.0f;  // Declare variable to hold the calculated change
     // Order confirmation condition
     if (*confirmation == 1)  // Order confirmed
     {
@@ -477,9 +504,11 @@ void getChange(CashRegister cash[], float *userMoney, int registerSize, float *t
  */
 void dispenseChange(CashRegister cash[], int registerSize, float amountToDispense)
 {
+    int i = 0;  // Index for iterating over cash denominations
+
     printf("\nDispensing Change:\n");
 
-    int i = 0;  // Index for iterating over cash denominations
+    // Loop over the available denominations
     while (i < registerSize && amountToDispense >= 0.05f)
     {
         int dispensedCount = 0;
@@ -487,9 +516,14 @@ void dispenseChange(CashRegister cash[], int registerSize, float amountToDispens
         // Dispense current denomination while possible
         while (amountToDispense >= cash[i].cashDenomination && cash[i].amountLeft > 0)
         {
+            // Deduct the denomination from the amount to dispense
             amountToDispense -= cash[i].cashDenomination;
             cash[i].amountLeft--;
             dispensedCount++;
+
+            // Round the amount to dispense to two decimal places to avoid floating point
+            // imprecision (especially with small denominations like 0.05)
+            amountToDispense = (float) ((int) (amountToDispense * 100 + 0.5)) / 100.0f;
         }
 
         // Display dispensed denominations if any
@@ -501,17 +535,17 @@ void dispenseChange(CashRegister cash[], int registerSize, float amountToDispens
         // Move to the next denomination
         i++;
     }
-
     printf(SEPARATOR);
 
     // Check if exact change was successfully dispensed
-    if (amountToDispense > 0.05)
+    if (amountToDispense >
+        0.01f)  // If the remaining amount is above 0.01 PHP, we consider it an error.
     {
         printf("\nUnable to dispense exact change. Remaining amount: %.2f PHP\n", amountToDispense);
     }
     else
     {
-        printf("\nChange successfully dispensed.");
+        printf("\nChange successfully dispensed.\n");
     }
 }
 
@@ -522,13 +556,12 @@ void dispenseChange(CashRegister cash[], int registerSize, float amountToDispens
  */
 void getSilog(UserSelection *selection)
 {
+    // Declare variable for the loop index
+    int i;
     // Display the order summary header
     printf("\n\nOrder Summary:\n");
     printf("%-15s | %-10s | %-10s\n", "Item Name", "Quantity", "Total Cost");
     printf(SEPARATOR "\n");
-
-    // Declare variable for the loop index
-    int i;
 
     // Check if any items have been selected
     if (selection->count > 0)
@@ -612,5 +645,5 @@ void resetOrderAfterConfirm(UserSelection *userSelection, float *insertedMoney)
     userSelection->totalItemCost = 0.0f;
     *insertedMoney = 0.0f;
 
-    printf(" Get Natsilog from Traybin\n");
+    printf("Get Natsilog from Traybin\n");
 }
