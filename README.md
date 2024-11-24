@@ -28,7 +28,7 @@ This project simulates a vending machine that allows users to:
   - [x] View stock/inventory
   - [x] Modify the price of the menu
   - [x] Restock inventory
-- [ ] Saving and loading the updated price and inventory count to a file in CSV format.
+- [x] Saving and loading the updated price and inventory count to a file in CSV format.
 
 ### Cash Register Features
 - [x] View cash register (number of each denomination, total amount)
